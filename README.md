@@ -1,0 +1,2 @@
+# Megumin-bot
+Explosion
