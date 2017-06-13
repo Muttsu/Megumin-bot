@@ -17,14 +17,15 @@ async def on_message(message):
         return
 
     if message.content.startswith('.'):
-        pasecommand(message.content[1:].split(),message)
+        pasecommand(message.content[1:],message)
     elif message.content.startswith('<@!{}>'.format(client.user.id)):
         query = message.content.split()
         result = query.remove('<@!{}>'.format(client.user.id))
-        parsecommand(result,message)
+        command = ' '.join(result)
+        parsecommand(command,message)
 
 def parsecommand(command,message):
-    if command[0] == 'ping':
+    if command == 'ping':
         a = message.timestamp
         b = datetime.now()
         latency = (b - a).microseconds // 1000
