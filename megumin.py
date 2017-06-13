@@ -23,7 +23,7 @@ async def on_message(message):
         result = query.remove('<@!{}>'.format(client.user.id))
         parsecommand(result,message)
 
-def parsecommand(command,message):
+async def parsecommand(command,message):
     if command[0] == 'ping':
         a = message.timestamp
         b = datetime.now()
