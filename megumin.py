@@ -27,7 +27,7 @@ async def on_message(message):
         a = message.timestamp
         b = datetime.now()
         latency = (b - a).microseconds // 1000
-        await bot.say('pong    {0}'.format(str(latency)))
+        await bot.send_message(message.channel, 'pong    {0}'.format(str(latency)))
         print('ping from {0}: {1}'.format(message.author, str(latency)))
 
         
