@@ -27,12 +27,12 @@ async def on_message(message):
         a = message.timestamp
         b = datetime.now()
         latency = (b - a).microseconds // 1000
-        pong = await bot.send_message(message.channel, 'pong    {0}'.format(str(latency)))
 
         def m_check(m):
             return m.content.startswith('pong')
         ping2 = await bot.wait_for_message(author=bot.user, check=m_check)
 
+        pong = await bot.send_message(message.channel, 'pong    {0}'.format(str(latency)))
         c = datetime.now()
         latency2 = (c - a).microseconds // 1000
         await bot.edit_message(pong,pong.content+' {0}'.format(str(latency2)))
