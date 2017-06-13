@@ -15,7 +15,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if client.user in message.mention and 'ping' in message.content:
+    if client.user in message.mentions and 'ping' in message.content:
         ping = message.timestamp
         pong = datetime.now()
         latency = (pong - ping).microseconds // 1000
