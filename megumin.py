@@ -17,15 +17,15 @@ async def on_message(message):
         return
 
     if client.user in message.mentions:
-        words = message.content.split
-        words.remove('<@' + str('client.user.id') + '>')
-        command = ' '.join(words)
-    elif message.content.startwith('.'):
+        query = message.content.split()
+        result = query.remove('<@322186990579744772>')
+        command = ' '.join(result)
+    elif message.content.startswith('.'):
         command = message.content[1:]
     else:
-        command = None
+        command = ''
 
-    if command != None
+    if command != '':
         if client.user in message.mentions and 'ping' in message.content:
             ping = message.timestamp
             pong = datetime.now()
