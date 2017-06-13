@@ -13,28 +13,24 @@ async def on_ready():
     bot.command_prefix = ['?','<@!{0}> '.format(bot.user.id)]
     print(':3')
 
-@bot.command(pass_context = True)
-async def ping(ctx):
-    a = ctx.message.timestamp
+async def ping_check(message):
+    a = message.timestamp
     b = datetime.now()
     latency = (b - a).microseconds // 1000
-    pong = await bot.send_message(ctx.message.channel, 'pong    {0}ms'.format(str(latency)))
+    pong = await bot.send_message(message.channel, 'pong    {0}ms'.format(str(latency)))
     c = pong.timestamp
     latency2 = (c - b).microseconds // 1000
     await bot.edit_message(pong,pong.content+'    ping    {0}ms'.format(str(latency2)))
-    print('ping from {0}    {1}    {2}    ms'.format(str(ctx.message.author), str(latency), str(latency2)))
+    print('ping from {0}    {1}    {2}    ms'.format(str(message.author), str(latency), str(latency2)))
+
+@bot.command(pass_context = True)
+async def ping(ctx):
+    await ping_check(ctx.message)
 
 @bot.listen()
 async def on_message(message):
     if message.content == 'ping':
-        a = message.timestamp
-        b = datetime.now()
-        latency = (b - a).microseconds // 1000
-        pong = await bot.send_message(message.channel, 'pong    {0}ms'.format(str(latency)))
-        c = pong.timestamp
-        latency2 = (c - b).microseconds // 1000
-        await bot.edit_message(pong,pong.content+'    ping    {0}ms'.format(str(latency2)))
-        print('ping from {0}    {1}    {2}    ms'.format(str(message.author), str(latency), str(latency2)))
+        await ping_check(message)
 
         
 bot.run('MzIyMTg2OTkwNTc5NzQ0Nzcy.DCD7VA.yIQEIeyd3QZrhzVVBw6Nguyihx4')
