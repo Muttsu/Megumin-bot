@@ -1,5 +1,6 @@
 import discord
 import asyncio
+from datetime import datetime
 
 client = discord.Client()
 
@@ -8,14 +9,16 @@ async def on_ready():
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
-    print()
+    print(':3')
     
 @client.event
 async def on_message(message):
     if message.author == client.user:
         return
-    if message.content.startswith('.ping'):
-        await client.send_message(message.channel,'pong')
+    if message.content == 'ping':
+        ping = message.timestamp
+        pong = datetime.now()
+        latency = (pong - ping).microseconds // 1000
+        await client.send_message(message.channel,'pong - ' + str(latency))
         
 client.run('MzIyMTg2OTkwNTc5NzQ0Nzcy.DCD7VA.yIQEIeyd3QZrhzVVBw6Nguyihx4')
-        
