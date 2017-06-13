@@ -18,15 +18,15 @@ async def on_message(message):
 
     if client.user in message.mentions:
         query = message.content.split()
-        result = query.remove('<@322186990579744772>')
-        command = ' '.join(result)
+        command = query.remove('<@{}>'.format(client.user.id))
     elif message.content.startswith('.'):
-        command = message.content[1:]
+        command = message.content[1:].split()
     else:
-        command = ''
+        command = None
 
-    if command != '':
-        if client.user in message.mentions and 'ping' in message.content:
+    if command != None:
+        #parsecommand(command)
+        if command[0] == 'ping':
             ping = message.timestamp
             pong = datetime.now()
             latency = (pong - ping).microseconds // 1000
