@@ -20,5 +20,15 @@ async def ping(ctx):
     latency = (b - a).microseconds // 1000
     await bot.say('pong    {0}'.format(str(latency)))
     print('ping from {0}: {1}'.format(ctx.message.author, str(latency)))
+
+@bot.listen()
+async def on_message(message):
+    if message.content == 'ping':
+        a = message.timestamp
+        b = datetime.now()
+        latency = (b - a).microseconds // 1000
+        await bot.say('pong    {0}'.format(str(latency)))
+        print('ping from {0}: {1}'.format(message.author, str(latency)))
+
         
 bot.run('MzIyMTg2OTkwNTc5NzQ0Nzcy.DCD7VA.yIQEIeyd3QZrhzVVBw6Nguyihx4')
