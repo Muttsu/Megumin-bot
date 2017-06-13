@@ -20,7 +20,8 @@ async def on_message(message):
         pasecommand(message.content[1:].split())
     elif message.content.startswith('<@!{}>'.format(client.user.id)):
         query = message.content.split()
-        parsecommand(query.remove('<@!{}>'.format(client.user.id)))
+        result = query.remove('<@!{}>'.format(client.user.id))
+        parsecommand(result)
 
 def parsecommand(command):
     if command[0] == 'ping':
