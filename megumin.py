@@ -15,10 +15,11 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if message.content == 'ping':
+    if client.user in message.mention and 'ping' in message.content:
         ping = message.timestamp
         pong = datetime.now()
         latency = (pong - ping).microseconds // 1000
         await client.send_message(message.channel,'pong - ' + str(latency))
+        print('ping')
         
 client.run('MzIyMTg2OTkwNTc5NzQ0Nzcy.DCD7VA.yIQEIeyd3QZrhzVVBw6Nguyihx4')
