@@ -21,7 +21,8 @@ async def on_message(message):
     if message.content.startswith('.'):
         command = message.content[1:]
     elif message.content.startswith('<@!{}>'.format(client.user.id)):
-        query = message.content.split().remove('<@!{}>'.format(client.user.id))
+        query = message.content.split()
+        result = query.remove('<@!{}>'.format(client.user.id))
         command = ' '.join(query)
         print(command)
     else:
