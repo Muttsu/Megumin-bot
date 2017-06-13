@@ -15,10 +15,12 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
+    else:
+        print(message.content)
 
     if client.user in message.mentions:
         query = message.content.split()
-        command = query.remove('<@{}>'.format(client.user.id))
+        command = filter(lambda x : x != '<@{}>'.format(client.user.id) , query)
     elif message.content.startswith('.'):
         command = message.content[1:].split()
     else:
