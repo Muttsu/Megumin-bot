@@ -17,13 +17,13 @@ async def on_message(message):
         return
 
     if message.content.startswith('.'):
-        pasecommand(message.content[1:].split())
+        pasecommand(message.content[1:].split(),message)
     elif message.content.startswith('<@!{}>'.format(client.user.id)):
         query = message.content.split()
         result = query.remove('<@!{}>'.format(client.user.id))
-        parsecommand(result)
+        parsecommand(result,message)
 
-def parsecommand(command):
+def parsecommand(command,message):
     if command[0] == 'ping':
         a = message.timestamp
         b = datetime.now()
