@@ -15,22 +15,18 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    else:
-        print(message.content)
 
     if message.content.startswith('.'):
-        command = message.content[1:]
+        command = message.content[1:].split()
     elif message.content.startswith('<@!{}>'.format(client.user.id)):
         query = message.content.split()
-        result = query.remove('<@!{}>'.format(client.user.id))
-        command = ' '.join(query)
-        print(command)
+        command = query.remove('<@!{}>'.format(client.user.id))
     else:
         command = None
 
     if command != None:
         #parsecommand(command)
-        if command[0] == 'ping':
+        if command == 'ping':
             ping = message.timestamp
             pong = datetime.now()
             latency = (pong - ping).microseconds // 1000
