@@ -23,12 +23,12 @@ async def on_message(message):
         result = query.remove('<@!{}>'.format(client.user.id))
         parsecommand(result,message)
 
-async def parsecommand(command,message):
+def parsecommand(command,message):
     if command[0] == 'ping':
         a = message.timestamp
         b = datetime.now()
         latency = (b - a).microseconds // 1000
-        await client.send_message(message.channel,'pong - ' + str(latency))
+        client.send_message(message.channel,'pong - ' + str(latency))
         print('ping')
         
 client.run('MzIyMTg2OTkwNTc5NzQ0Nzcy.DCD7VA.yIQEIeyd3QZrhzVVBw6Nguyihx4')
