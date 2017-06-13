@@ -3,7 +3,6 @@ import asyncio
 from datetime import datetime
 
 client = discord.Client()
-clientidstr = '<@!{}>'.format(client.user.id)
 
 @client.event
 async def on_ready():
@@ -21,9 +20,10 @@ async def on_message(message):
 
     if message.content.startswith('.'):
         command = message.content[1:]
-    elif message.content.startswith(clientidstr):
-        query = message.content.split().remove(clientidstr)
+    elif message.content.startswith('<@!{}>'.format(client.user.id)):
+        query = message.content.split().remove('<@!{}>'.format(client.user.id))
         command = ' '.join(query)
+        print(command)
     else:
         command = None
 
