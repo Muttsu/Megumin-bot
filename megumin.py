@@ -10,7 +10,7 @@ async def on_ready():
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
-    bot.command_prefix = ['?','<@!{0}> '.format(bot.user.id)]
+    bot.command_prefix = ['?','<@!{0}> '.format(bot.user.id), '<@{0}> '.format(bot.user.id)]
     print(':3')
 
 async def ping_check(message):
@@ -32,5 +32,4 @@ async def on_message(message):
     if message.content == 'ping':
         await ping_check(message)
 
-        
 bot.run('MzIyMTg2OTkwNTc5NzQ0Nzcy.DCD7VA.yIQEIeyd3QZrhzVVBw6Nguyihx4')
