@@ -28,7 +28,7 @@ async def ping_check(message):
     print('ping from {0}    {1}    {2}    ms'.format(str(message.author), str(ping_latency), str(pong_latency)))
 
 # }}}
-# Spam Function
+# Spam Function {{{
 
 async def spam_function(message):
     async def log_error(error):
