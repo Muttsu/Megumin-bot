@@ -12,8 +12,8 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     bot.command_prefix = ['?',
-                          '<@!{0}> '.format(bot.user.id),
-                          '<@{0}> '.format(bot.user.id)]
+        '<@!{0}> '.format(bot.user.id),
+        '<@{0}> '.format(bot.user.id)]
 
 
 # Ping {{{
