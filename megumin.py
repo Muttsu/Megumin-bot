@@ -31,8 +31,8 @@ async def ping_check(message):
 # Spam Function
 
 async def spam_function(message):
-    def log_error(error):
-        bot.edit_message(header,
+    async def log_error(error):
+        await bot.edit_message(header,
             """```
             -- Spam Function Error:[{}] --
             ```""".format(error))
@@ -40,7 +40,7 @@ async def spam_function(message):
     header = await bot.send_message(message.channel, "```\n-- Spam Function Active --\n```")
     args = message.content.split()
     if len(args) < 3:
-        log_error("2 arguments required")
+        await log_error("2 arguments required")
     else:
         await bot.delete_message(message)
         tmp = []
