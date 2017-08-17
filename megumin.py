@@ -14,25 +14,18 @@ async def on_ready():
     bot.command_prefix = ['?',
                           '<@!{0}> '.format(bot.user.id),
                           '<@{0}> '.format(bot.user.id)]
-    print(':3')
 
 
 # Ping {{{
 
 async def ping_check(message):
-    a = message.timestamp
-    b = datetime.now()
-    latency = (b - a).microseconds // 1000
-    pong = await bot.send_message(message.channel,
-                                  'pong    {0}ms'.format(str(latency)))
-    c = pong.timestamp
-    latency2 = (c - b).microseconds // 1000
-    await bot.edit_message(pong,
-                           '{1}    ping    {0}ms'.format(str(latency2),
-                                                         pong.content))
-    print('ping from {0}    {1}    {2}    ms'.format(str(message.author),
-                                                     str(latency),
-                                                     str(latency2)))
+    ping = message
+    local_time = datetime.now()
+    ping_latency = (local_time - ping.timestamp).microseconds // 1000
+    pong = await bot.send_message(message.channel, 'ping({0}ms)'.format(str(ping_latency)))
+    pong_latency = (pong.timestamp - local_time).microseconds // 1000
+    await bot.edit_message(pong,'{0}    pong({1}ms)'.format(pong.content, str(pong_latency)))
+    print('ping from {0}    {1}    {2}    ms'.format(str(message.author), str(ping_latency), str(pong_latency)))
 
 
 @bot.command(pass_context=True)
