@@ -51,6 +51,21 @@ async def spam_function(message):
             await bot.delete_message(msg)
         await bot.delete_message(header)
 
+
+@bot.command(pass_context=True)
+async def spam(ctx, count : int, content="foo"):
+    async def editCount(count):
+        await bot.edit_message(header,
+            """```
+-- Spam Function Active [{}] --
+```""".format(count))
+    header = await bot.say("```\n-- Spam Function Active --\n```")
+    await bot.delete_message(ctx.message)
+    for _ in range(count):
+        await bot.delete_message(await bot.say(content))
+        await editCount(_+1)
+    await bot.delete_message(header)
+
 # }}}
 
 @bot.listen()
