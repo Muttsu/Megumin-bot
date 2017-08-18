@@ -68,6 +68,18 @@ async def spam(ctx, count : int, *, content):
 
 # }}}
 
+# Explosion {{{
+
+@bot.command(pass_context=True)
+async def explosion(ctx, id, count=3, *, content="EXPLOSION"):
+    await bot.delete_message(ctx.message)
+    member = discord.utils.get(bot.get_all_members(), id=re.sub("\D+", "", id))
+    for _ in range(count):
+        await bot.send_message(member, "<@!{}> - {}".format(member.id, content))
+    print("{}: explosion [{}, {}, \"{}\"]".format(ctx.message.author, member.name, count, content))
+
+#}}}
+
 @bot.listen()
 async def on_message(message):
     if message.content == 'ping':
