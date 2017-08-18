@@ -6,7 +6,7 @@ import re
 from datetime import datetime
 import json
 
-with open("config.json". "r") as f:
+with open("config.json", "r") as f:
     secret = json.load(f)
     f.close()
 
