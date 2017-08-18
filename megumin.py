@@ -4,11 +4,16 @@ import asyncio
 
 import re
 from datetime import datetime
+import json
+
+with open('config.json') as f:
+    secret = json.load(f)
+    f.close()
 
 print("Strarting BOT...")
 bot = commands.Bot("!")
 
-admins = ["217243425714470922", "224627725376159744"]
+admins = secret["admins"]
 
 @bot.event
 async def on_ready():
@@ -155,4 +160,4 @@ async def on_message(message):
         elif message.content == "§die":
             exit()
 
-bot.run('MzIyMTg2OTkwNTc5NzQ0Nzcy.DCD7VA.yIQEIeyd3QZrhzVVBw6Nguyihx4')
+bot.run(secret["token"])
