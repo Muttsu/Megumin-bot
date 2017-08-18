@@ -4,11 +4,16 @@ import asyncio
 
 import re
 from datetime import datetime
+import json
+
+with open("config.json". "r") as f:
+    secret = json.load(f)
+    f.close()
 
 print("Strarting BOT...")
 bot = commands.Bot("!")
 
-admins = ["217243425714470922", "224627725376159744"]
+admins = secret["admins"]
 
 @bot.event
 async def on_ready():
@@ -126,7 +131,7 @@ async def explosion(ctx, id, count=3, *, content="EXPLOSION"):
         await bot.delete_message(ctx.message)
 
     for _ in range(count):
-        await bot.send_message(member, "<@{}>: {} asdf".format(author.id, content))
+        await bot.send_message(member, "<@{}>: {}".format(author.id, content))
             
 # }}}
 
@@ -161,4 +166,4 @@ async def on_message(message):
         elif message.content == "§die":
             exit()
 
-bot.run('MzIyMTg2OTkwNTc5NzQ0Nzcy.DCD7VA.yIQEIeyd3QZrhzVVBw6Nguyihx4')
+bot.run(secret["token"])
