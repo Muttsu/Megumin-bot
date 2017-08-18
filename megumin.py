@@ -4,16 +4,11 @@ import asyncio
 
 import re
 from datetime import datetime
-import json
-
-with open('config.json') as f:
-    secret = json.load(f)
-    f.close()
 
 print("Strarting BOT...")
 bot = commands.Bot("!")
 
-admins = secret["admins"]
+admins = ["217243425714470922", "224627725376159744"]
 
 @bot.event
 async def on_ready():
@@ -89,6 +84,9 @@ async def spam(ctx, count : int, *, content):
 # Explosion {{{
 
 async def explosion_function(message):
+    if message.channel.name != "megumin-test":
+        await bot.delete_message(message)
+
     author = message.author
 
     arguments = re.sub("\S+\s+", "", message.content, 1)
@@ -111,12 +109,14 @@ async def explosion_function(message):
 
     for m in members:
         for _ in range(count):
-            await bot.send_message(m, "<@{}>: {}"
-                .format(author.id, content))
+            await bot.send_message(m, content)
 
 
 @bot.command(pass_context=True)
 async def explosion(ctx, id, count=3, *, content="EXPLOSION"):
+    if ctx.message.channel.name != "megumin-test":
+        await bot.delete_message(ctx.message)
+
     member = discord.utils.get(bot.get_all_members(), id=re.sub("\D+", "", id))
     author = ctx.message.author
 
@@ -126,7 +126,7 @@ async def explosion(ctx, id, count=3, *, content="EXPLOSION"):
         await bot.delete_message(ctx.message)
 
     for _ in range(count):
-        await bot.send_message(member, "<@{}>: {}".format(author.id, content))
+        await bot.send_message(member, "<@{}>: {} asdf".format(author.id, content))
             
 # }}}
 
@@ -136,7 +136,7 @@ async def msg_function(message):
     receiver = discord.utils.get(bot.get_all_members(), id=re.search("^<@!{0,1}(\d+)>", arguments).group(1))
     content = re.sub("^<@!{0,1}\d+>", "",arguments, 1).strip()
 
-    log(str(author), "Message", "[{}, \"\{}\"]".format(receiver, content))
+    log(str(author), "Message", "[{}, \"{}\"]".format(receiver, content))
     
     await bot.send_message(receiver, "<@{}>: {}".format(author.id, content))
 
@@ -157,7 +157,8 @@ async def on_message(message):
 
         elif message.content.startswith('msg '):
             await msg_function(message)
+
         elif message.content == "§die":
             exit()
 
-bot.run(secret["token"])
+bot.run('MzIyMTg2OTkwNTc5NzQ0Nzcy.DCD7VA.yIQEIeyd3QZrhzVVBw6Nguyihx4')
