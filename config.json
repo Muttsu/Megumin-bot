@@ -1,4 +1,4 @@
 {
-    "admins": [], // admins id
+    "admins": ["admins id"],
     "token": "bot_token"
 }
