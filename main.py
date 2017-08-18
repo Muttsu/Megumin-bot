@@ -5,6 +5,7 @@ import asyncio
 import re
 from datetime import datetime
 import json
+import random
 
 with open("config.json", "r") as f:
     secret = json.load(f)
@@ -17,9 +18,7 @@ admins = secret["admins"]
 
 @bot.event
 async def on_ready():
-    print('Logged in as')
-    print(bot.user.name)
-    print(bot.user.id)
+    print('Logged in as', bot.user.name, bot.user.id)
 
     prefix = [bot.command_prefix]
     prefix.append('<@{}> '.format(bot.user.id))
@@ -108,6 +107,8 @@ async def explosion_function(message):
         count = int(re.search("^\d+", args).group(0))
     except:
         count = 3
+    if message.author.id not in admins:
+        count = min(25, count)
     content = re.sub("^\d+\s*", "", args, 1) or "EXPLOSION"
 
     log(str(author), "Explosion", "[{}, {}, \"{}\"]".format(members_name, count, content))
@@ -132,7 +133,7 @@ async def explosion(ctx, id, count=3, *, content="EXPLOSION"):
 
     for _ in range(count):
         await bot.send_message(member, "<@{}>: {}".format(author.id, content))
-            
+
 # }}}
 
 async def msg_function(message):
@@ -142,8 +143,8 @@ async def msg_function(message):
     content = re.sub("^<@!{0,1}\d+>", "",arguments, 1).strip()
 
     log(str(author), "Message", "[{}, \"{}\"]".format(receiver, content))
-    
-    await bot.send_message(receiver, "<@{}>: {}".format(author.id, content))
+
+    await bot.send_message(receiver, content)
 
 def log(author: str, function: str, arguments: str):
     print("{:>20}: {:<10} {}".format(author, function, arguments))
@@ -165,5 +166,14 @@ async def on_message(message):
 
         elif message.content == "§die":
             exit()
+
+    # if re.search("love\s+me", message.content) and bot.user.mentioned_in(message):
+        # possible_yes = ["Yes!", "Of course", "Forever", "123"]
+        # possible_no = ["Not interested", "no", "456"]
+        # if message.author.id in admins:
+            # content = random.choice(possible_yes)
+        # else:
+            # content = random.choice(possible_no)
+        # await bot.send_message(message.channel, content)
 
 bot.run(secret["token"])
