@@ -25,9 +25,7 @@ modules = {}
 for mod in mods:
     modules[mod] = importlib.import_module("modules." + mod)
 
-print("Availiable Commands:")
-for c in commands.keys():
-    print("  " + c)
+print("Availiable Commands: {}".format(tuple(commands.keys())))
 
 bot = discord.Client()
 
