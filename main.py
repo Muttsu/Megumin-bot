@@ -1,11 +1,8 @@
-import discord
-import sys
-import inspect
-from discord.ext import commands
 import asyncio
+import discord
+from discord.ext import commands
 import core
 
-import re
 from datetime import datetime
 import json
 import importlib
