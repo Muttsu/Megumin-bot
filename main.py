@@ -49,15 +49,9 @@ async def parse_command(message, command):
     func_name = cmd[1]
     args = cmd[2:]
 
-    func = commands[func_name].get_func()
-    
-    tmp = {
-        "bot": bot,
-        "message": message
-    }
+    func = commands[func_name].func
 
-    ctx = Context(**tmp)
-    del tmp
+    ctx = Context(bot = bot, message = message)
 
     if func_name in commands:
         try:

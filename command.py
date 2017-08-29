@@ -15,8 +15,4 @@ class Command:
     def __init__(self, name, func, **kwargs):
         self.name = name
         self.func = func
-        self.module = kwargs.pop("module", None)
-
-
-    def get_func(self, *args, **kwargs):
-        return self.func
+        self.module = func.__module__
