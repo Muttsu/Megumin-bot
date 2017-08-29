@@ -38,30 +38,38 @@ async def on_ready():
 
 
 def log(author, state: str, message):
+    """Logging Logging Error Debugging"""
     print("[{}] {:<20s}:{:<10s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(message)))
 
 
 async def parse_command(message, command):
+    """Parse individual commands"""
     #command.split(" | ")
 
-    cmd = command.split(" ", 2)
     try:
+        cmd = command.split(" ", 2)
         module = cmd[0]
         func_name = cmd[1]
         args = cmd[2:]
         func = getattr(modules[module], func_name)
     except:
+        cmd = command.split(" ", 1)
         module = "core"
         func_name = cmd[0]
         args = cmd[1:]
         func = getattr(core, func_name)
 
+
     try:
+        func.__globals__["bot"] = bot
+        func.__globals__["message"] = message
+
         log(message.author, "SUCCESS", "{}.{} {}".format(module, func_name,
-            await func(*args, bot = bot, message = message)))
+            await func(*args)))
     except Exception as e:
         log(message.author, "ERROR", command)
         print("  > " + str(e))
+
         if message.author.id in admin_ids:
             await bot.send_message(message.channel, "Aww")
         else:
@@ -69,6 +77,7 @@ async def parse_command(message, command):
     
 
 async def parse_message(message):
+    """Transforms message content into an array of commands"""
     content = message.content
     for pfx in bot.command_prefix:
         if content.startswith(pfx):
