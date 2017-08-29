@@ -1,4 +1,3 @@
-import discord
 import asyncio
 from datetime import datetime
 
@@ -14,10 +13,7 @@ async def ping(ctx, *args):
     return ping_latency
 
 @command()
-async def echo(ctx, args):
-    await ctx.say(args)
-    return args
+async def echo(ctx, message):
+    await ctx.say(message)
+    return message
 
-@command()
-async def test(ctx):
-    bot.sent_message(ctx.message.channel, ctx.message.conent)

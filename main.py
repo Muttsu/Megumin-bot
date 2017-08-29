@@ -1,7 +1,8 @@
 import asyncio
 import discord
 
-from core import commands, Context
+from core import commands
+from core import Context
 
 from datetime import datetime
 import json
@@ -17,17 +18,24 @@ with open("config.json", "r") as f:
 
 admin_ids = secret["admins"]
 prefix = secret["prefix"]
+if isinstance(prefix, str):
+    prefix = [prefix]
 mods = secret["modules"]
 modules = {}
 for mod in mods:
     modules[mod] = importlib.import_module("modules." + mod)
 
+print("Availiable Commands:")
+for c in commands.keys():
+    print("  " + c)
 
 bot = discord.Client()
 
 
 @bot.event
 async def on_ready():
+    """When the Bot is ready to go"""
+
     print('Logged in as', bot.user.name, bot.user.id)
 
     prefix.append('<@{}> '.format(bot.user.id))
@@ -36,21 +44,21 @@ async def on_ready():
 
 def log(author, state: str, message, info = None):
     """Logging Logging Error Debugging"""
-    print("[{}] {:<20s}:{:<10s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(info)))
+    print("[{}] {:<20s}:{:<10s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(message)))
     if message:
-        print("  > " + str(message))
+        print("  > " + str(info))
 
 
 async def parse_command(message, command):
     """Parse individual commands"""
-    #command.split(" | ")
 
     cmd = command.split(" ", 1)
     func_name = cmd[0]
     args = cmd[1:]
 
 
-    if hasattr(commands, func_name):
+    # Check if the command actually exists
+    if func_name in commands:
         func = commands[func_name]
         func.ctx = Context(bot = bot, message = message)
         try:
@@ -61,14 +69,14 @@ async def parse_command(message, command):
         except Exception as e:
             log(message.author, "ERROR", command, e)
 
-            # So I don't get depressed
+            # So I don't get depressed (◕‿◕✿)
             if message.author.id in admin_ids:
                 await bot.send_message(message.channel, "Aww")
             else:
                 await bot.send_message(message.channel, "Something went wrong and you're the cause. You suck.")
     else:
         log(message.author, "ERROR", command, "{}: not a command".format(func_name))
-    
+
 
 async def parse_message(message):
     """Transforms message content into an array of commands"""
