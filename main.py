@@ -62,12 +62,17 @@ async def parse_command(message, command):
         args = cmd[1:]
         func = getattr(core, func_name)
 
+
     try:
+        func.__globals__["bot"] = bot
+        func.__globals__["message"] = message
+
         log(message.author, "SUCCESS", "{}.{} {}".format(module, func_name,
-            await func(*args, bot = bot, message = message)))
+            await func(*args)))
     except Exception as e:
         log(message.author, "ERROR", command)
         print("  > " + str(e))
+
         if message.author.id in admin_ids:
             await bot.send_message(message.channel, "Aww")
         else:
