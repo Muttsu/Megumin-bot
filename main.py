@@ -1,8 +1,7 @@
 import asyncio
 import discord
 
-from core import commands
-from core import Context
+from core import commands, Context
 
 from datetime import datetime
 import json
@@ -10,41 +9,66 @@ import importlib
 
 print("Strarting BOT...")
 
+bot = discord.Client()
 
+
+# Data from Config File
 with open("config.json", "r") as f:
     secret = json.load(f)
     f.close()
 
-
+token = secret["token"]
 admin_ids = secret["admins"]
 prefix = secret["prefix"]
-if isinstance(prefix, str):
-    prefix = [prefix]
-mods = secret["modules"]
-modules = {}
-for mod in mods:
-    modules[mod] = importlib.import_module("modules." + mod)
+modules = secret["modules"]
 
-print("Availiable Commands: {}".format(tuple(commands.keys())))
 
-bot = discord.Client()
+@bot.event
+async def on_message(message):
+    """Commands and Stuff"""
+
+    # Test Only
+    if message.channel.name == "megumin-test" and message.author != bot.user:
+
+        if message.content.startswith(tuple(prefix)):
+            await parse_message(message)
 
 
 @bot.event
 async def on_ready():
-    """When the Bot is ready to go"""
+    """Are you ready?"""
 
     print('Logged in as', bot.user.name, bot.user.id)
 
-    prefix.append('<@{}> '.format(bot.user.id))
-    prefix.append('<@!{}> '.format(bot.user.id))
+    # Prefix Stuff
+    if isinstance(prefix, str):
+        bot.prefix = [prefix]
+    else:
+        bot.prefix = [*prefix]
+    # Support for @mentions
+    bot.prefix.append('<@{}> '.format(bot.user.id))
+    bot.prefix.append('<@!{}> '.format(bot.user.id))
 
 
-def log(author, state: str, message, info = None):
-    """Logging Logging Error Debugging"""
-    print("[{}] {:<20s}:{:<10s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(message)))
-    if message:
-        print("  > " + str(info))
+##################################
+# == Thats All You Need To Know ==
+##################################
+
+
+async def parse_message(message):
+    """Transforms message content into an array of commands"""
+
+    content = message.content
+    for pfx in bot.prefix:
+        if content.startswith(pfx):
+            # Remove prefix from message
+            commands = map(lambda string: string.strip(),
+                # Split the commands
+                content.replace(pfx, "", 1).split(" & "))
+            break
+
+    for cmd in commands:
+            await parse_command(message, cmd)
 
 
 async def parse_command(message, command):
@@ -58,8 +82,10 @@ async def parse_command(message, command):
     # Check if the command actually exists
     if func_name in commands:
         func = commands[func_name]
+        # Smartz way to pass bot and message objects
         func.ctx = Context(bot = bot, message = message)
         try:
+            # Log the return value
             log(message.author, "SUCCESS", func_name,
                 await func(*args))
 
@@ -75,23 +101,15 @@ async def parse_command(message, command):
     else:
         log(message.author, "ERROR", command, "{}: not a command".format(func_name))
 
-
-async def parse_message(message):
-    """Transforms message content into an array of commands"""
-    content = message.content
-    for pfx in prefix:
-        if content.startswith(pfx):
-            commands = [*map(lambda string: string.strip(), content.replace(pfx, "", 1).split(" & "))]
-            break
-    for cmd in commands:
-            await parse_command(message, cmd)
-    
-@bot.event
-async def on_message(message):
-    if message.channel.name == "megumin-test" and message.author != bot.user: #test only
-
-        if message.content.startswith(tuple(prefix)):
-            await parse_message(message)
+def log(author, state: str, message = None, info = None):
+    """Logging, Logging, Error Debugging"""
+    print("[{}] {:<20s}:{:<10s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(message)))
+    if message:
+        print("  > " + str(info))
 
 
-bot.run(secret["token"])
+for mod in modules:
+    importlib.import_module("modules." + mod)
+print("Availiable Commands: {}".format(tuple(commands.keys())))
+
+bot.run(token)

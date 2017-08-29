@@ -25,9 +25,10 @@ class Command:
             return await self.func(self.ctx, *args, **kwargs)
     
 class Context:
-    def __init__(self, **attrs):
-        self.message = attrs.pop("message", None)
-        self.bot = attrs.pop("bot", None)
+    def __init__(self, **kwargs):
+        self.message = kwargs.pop("message", None)
+        self.bot = kwargs.pop("bot", None)
     
     async def say(self, msg):
         return await self.bot.send_message(self.message.channel, msg)
+    
