@@ -3,11 +3,12 @@ import sys
 import inspect
 from discord.ext import commands
 import asyncio
+import core
 
 import re
 from datetime import datetime
 import json
-
+import importlib
 
 print("Strarting BOT...")
 
@@ -19,11 +20,11 @@ with open("config.json", "r") as f:
 
 admin_ids = secret["admins"]
 prefix = secret["prefix"]
-modules = secret["modules"]
+mods = secret["modules"]
 
-mods = {}
-for module in modules:
-    mods[module] = importlib.import_module(module)
+modules = {}
+for mod in mods:
+    modules[mod] = importlib.import_module("modules." + mod)
 
 bot = commands.Bot(prefix)
 
@@ -32,33 +33,59 @@ bot = commands.Bot(prefix)
 async def on_ready():
     print('Logged in as', bot.user.name, bot.user.id)
 
-    prefix = [bot.command_prefix]
+    if isinstance(bot.command_prefix, str):
+        prefix = [bot.command_prefix]
     prefix.append('<@{}> '.format(bot.user.id))
     prefix.append('<@!{}> '.format(bot.user.id))
     bot.command_prefix = prefix
 
 
+def log(author, state: str, message):
+    print("[{}] {:<20s}:{:<10s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(message)))
+
+
+async def parse_command(message, command):
+    #command.split(" | ")
+
+    cmd = command.split(" ", 2)
+    try:
+        module = cmd[0]
+        func_name = cmd[1]
+        args = cmd[2:]
+        func = getattr(modules[module], func_name)
+    except:
+        module = "core"
+        func_name = cmd[0]
+        args = cmd[1:]
+        func = getattr(core, func_name)
+
+    try:
+        log(message.author, "SUCCESS", "{}.{} {}".format(module, func_name,
+            await func(*args, bot = bot, message = message)))
+    except Exception as e:
+        log(message.author, "ERROR", command)
+        print("  > " + str(e))
+        if message.author.id in admin_ids:
+            await bot.send_message(message.channel, "Aww")
+        else:
+            await bot.send_message(message.channel, "Something went wrong and you're the cause. You suck.")
+    
+
+async def parse_message(message):
+    content = message.content
+    for pfx in bot.command_prefix:
+        if content.startswith(pfx):
+            commands = [*map(lambda string: string.strip(), content.replace(pfx, "", 1).split(" & "))]
+            break
+    for cmd in commands:
+            await parse_command(message, cmd)
+    
 @bot.event
 async def on_message(message):
-    if message.author.id in admin_ids and message.channel.name == "megumin-test": #test only
-
-        def parse_command(message):
-            cmd = message.content.split(' ', 2)
-            mod = cmd[0]
-            fct = cmd[1]
-            args = # some regex and stuff
-            getattr(mods[mod],fct)(message, args)
+    if message.channel.name == "megumin-test" and message.author != bot.user: #test only
 
         if message.content.startswith(tuple(bot.command_prefix)):
-            for pfx in bot.command_prefix:
-                message.content.replace(pfx,'').strip()
-            if ' & ' in message.content:
-                cmds = message.content.split(' & ')
-                for cmd in cmds:
-                    message.content = cmd
-                    parse_command(message)
-            else:
-                parse_command(message)
+            await parse_message(message)
 
 
 bot.run(secret["token"])
