@@ -1,8 +1,7 @@
 import asyncio
 import discord
 
-from command import commands
-from context import Context
+from core import commands, Context
 
 from datetime import datetime
 import json
@@ -35,39 +34,40 @@ async def on_ready():
     prefix.append('<@!{}> '.format(bot.user.id))
 
 
-def log(author, state: str, message):
+def log(author, state: str, message, info = None):
     """Logging Logging Error Debugging"""
-    print("[{}] {:<20s}:{:<10s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(message)))
+    print("[{}] {:<20s}:{:<10s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(info)))
+    if message:
+        print("  > " + str(message))
 
 
 async def parse_command(message, command):
     """Parse individual commands"""
     #command.split(" | ")
 
-    cmd = command.split(" ", 2)
-    module = cmd[0]
-    func_name = cmd[1]
-    args = cmd[2:]
+    cmd = command.split(" ", 1)
+    func_name = cmd[0]
+    args = cmd[1:]
 
-    func = commands[func_name].func
 
-    ctx = Context(bot = bot, message = message)
-
-    if func_name in commands:
+    if hasattr(commands, func_name):
+        func = commands[func_name]
+        func.ctx = Context(bot = bot, message = message)
         try:
-            log(message.author, "SUCCESS", "{}.{} {}".format(module, func_name,
-                await func(ctx, *args)))
+            log(message.author, "SUCCESS", func_name,
+                await func(*args))
+
+        # Error parsing
         except Exception as e:
-            log(message.author, "ERROR", command)
-            print("  > " + str(e))
+            log(message.author, "ERROR", command, e)
+
+            # So I don't get depressed
             if message.author.id in admin_ids:
                 await bot.send_message(message.channel, "Aww")
             else:
                 await bot.send_message(message.channel, "Something went wrong and you're the cause. You suck.")
-    
     else:
-        log(message.author, "ERROR", "{}.{}".format(module, func_name))
-        print("  > {}.{} not found.".format(module, func_name))
+        log(message.author, "ERROR", command, "{}: not a command".format(func_name))
     
 
 async def parse_message(message):
