@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 
 commands = {}
+aliases = {}
 
 def command(name=None, **kwargs):
     def wrapper(fn):
@@ -37,8 +38,10 @@ class Context:
 
 # == New Section ==
 with open("config.json", "r") as f:
-    aliases = json.load(f)["aliases"]
+    secret = json.load(f)
     f.close()
+if "aliases" in secret:
+    aliases = secret[aliases]
 
 async def parse_message(bot, message):
     """Transforms message content into an array of commands"""

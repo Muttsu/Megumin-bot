@@ -13,11 +13,6 @@ ready = Start()
 bot = discord.Client()
 
 
-# Data from Config File
-with open("config.json", "r") as f:
-    secret = json.load(f)
-    f.close()
-
 token = secret["token"]
 admin_ids = secret["admins"]
 prefix = secret["prefix"]
