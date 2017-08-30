@@ -18,7 +18,7 @@ admin_ids = secret["admins"]
 prefix = secret["prefix"]
 modules = secret["modules"]
 if "aliases" in secret:
-    # wa ga nawa megumin desu! EXPLOSION (it was super effective!)
+    # wa ga nawa megumin desu! EXPLOSION (it was super effective!) ಠ_ಠ
     aliases = secret["aliases"]
     importlib.import_module("core").aliases = aliases
 
