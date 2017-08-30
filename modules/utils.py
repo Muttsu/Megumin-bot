@@ -18,13 +18,18 @@ async def help(ctx, func: str):
 
     else:
         doc = "No manual entry for '{}'".format(func)
-        raise Exception(doc)
+        raise FunctionException(doc)
 
     await ctx.say(doc)
     return doc
 
 @command()
-async def ping(ctx, *args):
+async def delLastMsg(ctx, *args):
+    await ctx.bot.delete_message(ctx.message)
+    return 0
+
+@command()
+async def ping(ctx):
     """Returns the latency between the Server and the Bot
     Usage: ping"""
 
@@ -32,7 +37,7 @@ async def ping(ctx, *args):
     ping_latency = (local_time - ctx.message.timestamp).microseconds // 1000
     pong = await ctx.say('ping({}ms)'.format(str(ping_latency)))
     pong_latency = (pong.timestamp - local_time).microseconds // 1000
-    await bot.edit_message(pong, '{} pong({}ms)'.format(pong.content, str(pong_latency)))
+    await ctx.bot.edit_message(pong, '{} pong({}ms)'.format(pong.content, str(pong_latency)))
     return ping_latency
 
 @command()

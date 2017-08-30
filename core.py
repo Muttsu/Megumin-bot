@@ -5,14 +5,17 @@ from datetime import datetime
 commands = {}
 aliases = {}
 
+class FunctionException(Exception):
+    pass
+
 def command(name=None, **kwargs):
-    def wrapper(fn):
+    def dec(fn):
         # add the command to dict
         nm = name or fn.__name__
         commands[nm] = Command(func = fn, **kwargs)
 
         return fn
-    return wrapper
+    return dec
 
 class Command:
     def __init__(self, *args, **kwargs):

@@ -32,7 +32,7 @@ print("Availiable Commands: {}".format(sorted(tuple(commands.keys()) + tuple(ali
 async def on_ready():
     """Are you ready?"""
 
-    log(bot.user, "Logged in as", bot.user.id)
+    log(bot.user, "Logged in as " + bot.user.id)
     print("-"*63)
 
     # Prefix Stuff
@@ -58,6 +58,7 @@ async def on_message(message):
                 exit()
             if message.content.startswith(tuple(bot.prefix)):
                     await parse_message(bot, message)
+                    print("-"*3)
 
 #################################
 # == There is NOTHING To See == #
@@ -80,9 +81,12 @@ async def parse_message(bot, message):
             await parse_command(cmd, bot, message)
 
         # Error parsing (◕‿◕✿)
+        except FunctionException as e:
+            log(message.author, "FUNCTION EXPLODED", content, e)
+            await bot.send_message(message.channel, "Kazuma, Kazuma. Is this normal?```\n> {}\n```".format(str(e)))
         except Exception as e:
             log(message.author, "ERROR", content, e)
-            await bot.send_message(message.channel, str(e))
+            await bot.send_message(message.channel, "This is NOT how it works. ಠ_ಠ```\n> {}```".format(str(e)))
             
             # So I don't get depressed (◕‿◕✿)
             #if message.author.id in admin_ids:
@@ -123,9 +127,9 @@ def parse_alias(func_name):
         return func_name
 
 
-def log(author, state: str, message, info = None):
+def log(author, state: str, message = "", info = None):
     """Logging, Logging, Error Debugging"""
-    print("[{}] {:<20s}:{:<10s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(message)))
+    print("[{}] {:<20s}:{:<20s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(message)))
     if info:
         print("  > " + str(info))
 
