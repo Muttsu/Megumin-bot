@@ -1,0 +1,6 @@
+{
+    "admins": ["Admin_ids"],
+    "token": "token",
+    "modules": ["modules"],
+    "prefix": "?"
+}
