@@ -10,13 +10,16 @@ async def help(ctx, func: str):
     
     if func in aliases:
         doc = "'{}' is an alias for '{}'".format(func, aliases[func])
+
     elif func in commands:
         doc = "Manual entry for '{}' is empty".format(func)
         if commands[func].doc:
             doc = "'{}': {}".format(func, commands[func].doc)
+
     else:
         doc = "No manual entry for '{}'".format(func)
-    
+        raise Exception(doc)
+
     await ctx.say(doc)
     return doc
 
@@ -29,7 +32,7 @@ async def ping(ctx, *args):
     ping_latency = (local_time - ctx.message.timestamp).microseconds // 1000
     pong = await ctx.say('ping({}ms)'.format(str(ping_latency)))
     pong_latency = (pong.timestamp - local_time).microseconds // 1000
-    await ctx.bot.edit_message(pong, '{} pong({}ms)'.format(pong.content, str(pong_latency)))
+    await bot.edit_message(pong, '{} pong({}ms)'.format(pong.content, str(pong_latency)))
     return ping_latency
 
 @command()
