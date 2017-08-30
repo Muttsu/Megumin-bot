@@ -1,97 +1,63 @@
 import asyncio
 import discord
 
-from core import commands
-from core import Context
+from core import *
 
 from datetime import datetime
 import json
 import importlib
 
-print("Strarting BOT...")
 
-
-with open("config.json", "r") as f:
-    secret = json.load(f)
-    f.close()
-
-
-admin_ids = secret["admins"]
-prefix = secret["prefix"]
-if isinstance(prefix, str):
-    prefix = [prefix]
-mods = secret["modules"]
-modules = {}
-for mod in mods:
-    modules[mod] = importlib.import_module("modules." + mod)
-
-print("Availiable Commands: {}".format(tuple(commands.keys())))
+ready = Start()
 
 bot = discord.Client()
 
 
+# Data from Config File
+with open("config.json", "r") as f:
+    secret = json.load(f)
+    f.close()
+
+token = secret["token"]
+admin_ids = secret["admins"]
+prefix = secret["prefix"]
+modules = secret["modules"]
+for mod in modules:
+    importlib.import_module("modules." + mod)
+print("Availiable Commands: {}".format(tuple(sorted(commands.keys()))))
+
+
+
 @bot.event
 async def on_ready():
-    """When the Bot is ready to go"""
+    """Are you ready?"""
 
-    print('Logged in as', bot.user.name, bot.user.id)
+    log(bot.user, "Logged in as", bot.user.id)
+    print("-"*63)
 
-    prefix.append('<@{}> '.format(bot.user.id))
-    prefix.append('<@!{}> '.format(bot.user.id))
+    ready()
 
-
-def log(author, state: str, message, info = None):
-    """Logging Logging Error Debugging"""
-    print("[{}] {:<20s}:{:<10s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(message)))
-    if message:
-        print("  > " + str(info))
-
-
-async def parse_command(message, command):
-    """Parse individual commands"""
-
-    cmd = command.split(" ", 1)
-    func_name = cmd[0]
-    args = cmd[1:]
-
-
-    # Check if the command actually exists
-    if func_name in commands:
-        func = commands[func_name]
-        func.ctx = Context(bot = bot, message = message)
-        try:
-            log(message.author, "SUCCESS", func_name,
-                await func(*args))
-
-        # Error parsing
-        except Exception as e:
-            log(message.author, "ERROR", command, e)
-
-            # So I don't get depressed (◕‿◕✿)
-            if message.author.id in admin_ids:
-                await bot.send_message(message.channel, "Aww")
-            else:
-                await bot.send_message(message.channel, "Something went wrong and you're the cause. You suck.")
+    # Prefix Stuff
+    if isinstance(prefix, str):
+        bot.prefix = [prefix]
     else:
-        log(message.author, "ERROR", command, "{}: not a command".format(func_name))
+        bot.prefix = [*prefix]
+    # Support for @mentions
+    bot.prefix.append('<@{}> '.format(bot.user.id))
+    bot.prefix.append('<@!{}> '.format(bot.user.id))
 
 
-async def parse_message(message):
-    """Transforms message content into an array of commands"""
-    content = message.content
-    for pfx in prefix:
-        if content.startswith(pfx):
-            commands = [*map(lambda string: string.strip(), content.replace(pfx, "", 1).split(" & "))]
-            break
-    for cmd in commands:
-            await parse_command(message, cmd)
-    
 @bot.event
 async def on_message(message):
-    if message.channel.name == "megumin-test" and message.author != bot.user: #test only
+    """Commands and Stuff"""
 
-        if message.content.startswith(tuple(prefix)):
-            await parse_message(message)
+    if ready:
+        # Test Only
+        if message.channel.name == "megumin-test" and message.author != bot.user:
+            if message.content == "§die":
+                exit()
+            if message.content.startswith(tuple(prefix)):
+                await parse_message(bot, message)
 
 
-bot.run(secret["token"])
+bot.run(token)
