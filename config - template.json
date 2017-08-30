@@ -1,6 +1,9 @@
 {
-    "admins": ["Admin_ids"],
     "token": "token",
+    "admins": ["Admin_ids"],
+
+    "prefix": "?", // Can also be an array
+
     "modules": ["modules"],
-    "prefix": "?"
+    "aliases": {"aliases": "command"}
 }
