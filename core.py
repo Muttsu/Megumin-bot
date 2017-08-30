@@ -44,10 +44,10 @@ with open("config.json", "r") as f:
     f.close()
     
 
-class Start():
-    def __init__(self):
+class Start(boolean = False):
+    def __init__(self, boolean):
         print("Made by Muttsu and twl")
-        self.state = False
+        self.state = boolean
     
     def __bool__(self):
         return self.state
