@@ -105,7 +105,8 @@ async def parse_command(command, bot, message):
     
 
     # Check if the command actually exists
-    if isinstance(func, Command):
+    if func in commands:
+        func = commands[func]
         # Smartz way to pass bot and message objects
         func.ctx = Context(bot = bot, message = message)
         # Log the return value
@@ -120,9 +121,7 @@ def parse_alias(func_name):
     # Alias of an Alias
     if func_name in aliases:
         return parse_alias(aliases[func_name])
-    # We found the Function
-    elif func_name in commands:
-        return commands[func_name]
+    # We found the Function (maybe?)
     else:
         return func_name
 
