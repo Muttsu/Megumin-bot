@@ -101,7 +101,11 @@ class Context:
         self.bot = kwargs.pop("bot", None)
     
     async def say(self, msg):
-        return await self.bot.send_message(self.message.channel, msg)
+        msg = msg.strip()
+        if msg:
+            return await self.bot.send_message(self.message.channel, msg)
+        else:
+            raise FunctionException("Cannot send empty message")
 
 
 with open("config.json", "r") as f:
