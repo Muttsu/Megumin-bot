@@ -1,9 +1,9 @@
-import asyncio
 from datetime import datetime
+import re
 
 from core import *
 
-@command()
+@command(ignore_kwargs = True)
 async def help(ctx, func: str):
     """Displays the reference manual for commands and aliases
     Usage: help <func:str>"""
@@ -24,27 +24,33 @@ async def help(ctx, func: str):
     return doc
 
 @command()
-async def delLastMsg(ctx, *args):
+async def delLMsg(ctx, *args, **kwargs):
+    """Deletes user's last message
+    Usage: delLMsg
+    Return: 0"""
+    
     await ctx.bot.delete_message(ctx.message)
     return 0
 
 @command()
-async def ping(ctx):
+async def ping(ctx, msg, s = False, silent = False):
     """Returns the latency between the Server and the Bot
-    Usage: ping"""
+    Usage: ping [-s or -Silent]
+    Return: ping"""
 
     local_time = datetime.now()
     ping_latency = (local_time - ctx.message.timestamp).microseconds // 1000
-    pong = await ctx.say('ping({}ms)'.format(str(ping_latency)))
-    pong_latency = (pong.timestamp - local_time).microseconds // 1000
-    await ctx.bot.edit_message(pong, '{} pong({}ms)'.format(pong.content, str(pong_latency)))
+    if not s and not silent:
+        pong = await ctx.say('ping({}ms)'.format(str(ping_latency)))
+        pong_latency = (pong.timestamp - local_time).microseconds // 1000
+        await ctx.bot.edit_message(pong, '{} pong({}ms)'.format(pong.content, str(pong_latency)))
     return ping_latency
 
-@command()
-async def echo(ctx, message):
+@command(ignore_kwargs = True)
+async def echo(ctx, message: str):
     """Displays text
     Usage: echo <msg:str>"""
-
+    
+    message = re.sub("\s+", " ", message.strip())
     await ctx.say(message)
     return message
-
