@@ -13,7 +13,10 @@ ready = Start("BOT")
 bot = discord.Client()
 
 token = secret["token"]
+
 admin_ids = secret["admins"]
+importlib.import_module("core").admin_ids = admin_ids
+
 prefix = secret["prefix"]
 modules = secret["modules"]
 if "aliases" in secret:
@@ -56,108 +59,9 @@ async def on_message(message):
                 exit()
             if message.content.startswith(tuple(bot.prefix)):
                 log(message.author, message.content)
-                await parse_message(message)
+                ctx = Context(bot = bot, message = message)
+                await parse_message(ctx)
                 print("-"*3)
-
-#################################
-# == There is NOTHING To See == #
-#################################
-
-async def parse_message(message):
-    """Removes Prefixes and Passes the Command to parse_command()"""
-
-    current = []
-    content = message.content
-    for pfx in bot.prefix:
-        if content.startswith(pfx):
-            # Remove prefix from message 
-            command = content.replace(pfx, "", 1).strip()
-            break
-            
-    try:
-        await parse_command(message, current, command)
-    
-    # Error parsing (◕‿◕✿)
-    except FunctionException as e:
-        log(message.author, "FUNCTION EXPLODED", current[-1], e)
-        await bot.send_message(message.channel,
-            "Kazuma, Kazuma. Is this normal?```\n> {}\n```".format(str(e)))
-
-    except Exception as e:
-        log(message.author, "ERROR", current[-1], e)
-        await bot.send_message(message.channel,
-            "This is NOT how it works. ಠ_ಠ```\n> {}```".format(str(e)))
-
-        # So I don't get depressed (◕‿◕✿)
-        #if message.author.id in admin_ids:
-        #    await bot.send_message(message.channel, "Aww")
-        #else:
-        #    await bot.send_message(message.channel, "Something went wrong and you're the cause. You suck.")
-
-
-async def parse_command(message, current, command, carry = None):
-    """Parse commands"""
-    
-    current.append("parse_command: " + command)
-    stack = []
-    cmds = command.split(" & ")
-    
-    for cmd in cmds:
-        car = Start(carry)
-        cmd = cmd.split(" | ")
-        for c in cmd:
-            r = await execute(message, current, c, stack, car)
-            stack.append(r)
-            car()
-    return r
-
-
-async def execute(message, current, command, stack, carry = False):
-    current.append("execute: " + command)
-    command = command.strip()
-    func_name = command.split(" ", 1)[0]
-    arg = command.replace(func_name, "", 1).strip()
-
-    if func_name in aliases:
-        return await parse_command(message, current, "{} {}".format(parse_alias(func_name), arg), carry)
-    
-    # Check if the command actually exists
-    elif func_name in commands:
-        func = commands[func_name]
-        # Smartz way to pass bot and message objects
-        func.ctx = Context(bot = bot, message = message)
-        
-        if carry:
-            carry = str(stack.pop())
-        else:
-            carry = None
-    
-        r = await func(arg, carry = carry)
-        
-        # Log the return value
-        log(message.author, "SUCCESS", command, r)
-        return r
-
-    else:
-        raise Exception("'{}': not a command".format(func_name))
-
-
-def parse_alias(func_name):
-    # Alias of an Alias
-    if func_name in aliases:
-        return parse_alias(aliases[func_name])
-    # We found the Function (maybe?)
-    else:
-        return func_name
-
-
-
-def log(author, state: str, message = "", info = None):
-    """Logging, Logging, Error Debugging"""
-    print("[{}] {:<20s}:{:<20s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(message)))
-    if info:
-        print("  > " + str(info))
-
 
 
 bot.run(token)
