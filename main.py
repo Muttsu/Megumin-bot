@@ -55,6 +55,7 @@ async def on_message(message):
             if message.content == "§die" and message.author.id in admin_ids:
                 exit()
             if message.content.startswith(tuple(bot.prefix)):
+                log(message.author, message.content)
                 await parse_message(message)
                 print("-"*3)
 
