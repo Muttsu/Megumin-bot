@@ -25,7 +25,7 @@ async def help(ctx, func: str):
     return doc
 
 @command()
-async def delLastMsg(ctx, *args):
+async def delLastMsg(ctx, *args, **kwargs):
     await ctx.bot.delete_message(ctx.message)
     return 0
 
@@ -42,7 +42,7 @@ async def ping(ctx, msg, s = False, silent = False):
         await ctx.bot.edit_message(pong, '{} pong({}ms)'.format(pong.content, str(pong_latency)))
     return ping_latency
 
-@command()
+@command(ignore_kwargs = True)
 async def echo(ctx, message: str):
     """Displays text
     Usage: echo <msg:str>"""

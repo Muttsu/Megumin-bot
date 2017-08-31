@@ -83,10 +83,10 @@ async def parse_message(message):
         await bot.send_message(message.channel,
             "Kazuma, Kazuma. Is this normal?```\n> {}\n```".format(str(e)))
 
-#    except Exception as e:
-#        log(message.author, "ERROR", content, e)
-#        await bot.send_message(message.channel,
-#            "This is NOT how it works. ಠ_ಠ```\n> {}```".format(str(e)))
+    except Exception as e:
+        log(message.author, "ERROR", content, e)
+        await bot.send_message(message.channel,
+            "This is NOT how it works. ಠ_ಠ```\n> {}```".format(str(e)))
 
         # So I don't get depressed (◕‿◕✿)
         #if message.author.id in admin_ids:
@@ -102,12 +102,12 @@ async def parse_command(message, command, carry = None):
     cmds = command.split(" & ")
     
     for cmd in cmds:
-        carry = Start(carry)
+        car = Start(carry)
         cmd = cmd.split(" | ")
         for c in cmd:
-            r = await execute(message, c, stack, carry)
+            r = await execute(message, c, stack, car)
             stack.append(r)
-            carry()
+            car()
     return r
 
 
