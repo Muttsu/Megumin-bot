@@ -49,7 +49,7 @@ async def ping(ctx, msg, silent = False):
         await ctx.bot.edit_message(pong, '{} pong({}ms)'.format(pong.content, str(pong_latency)))
     return ping_latency
 
-@command(key_aliases = {"carry": "formatstr", "s": "silent", "r", "raw"})
+@command(key_aliases = {"carry": "formatstr", "s": "silent", "r": "raw"})
 async def echo(ctx, message: str, silent = False, raw = False, formatstr = ""):
     """Displays text
     Usage: echo <msg:str>"""
