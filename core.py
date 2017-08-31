@@ -26,20 +26,30 @@ class Command:
         self.ctx = kwargs.pop("ctx", None)
         self.ignore_ctx = kwargs.pop("ignore_ctx", False)
         self.ignore_kwargs = kwargs.pop("ignore_kwargs", False)
-
+        self.ignore_carry = kwargs.pop("ignore_carry", False)
+        self.key_aliases = kwargs.pop("key_aliases", {})
         
     async def __call__(self, *args, **kwargs):
         args = list(args)
+        carry = kwargs.pop("carry", None)
+                
         if self.ignore_kwargs:
             kwargs = {}
+                
         else:
-            kwargs = self.parse_args(args)
+            kwargs.update(self.parse_args(args))
             if "arg" in kwargs:
                 args = [kwargs.pop("arg")]
+
+        if not self.ignore_carry and carry is not None:
+            if args[0]:
+                kwargs[self.parse_key_alias("carry")] = carry
+            else:
+                args[0] = carry
         
         if not self.ignore_ctx:
             args.insert(0, self.ctx)
-
+        
         return await self.func(*args, **kwargs)
 
     
@@ -48,13 +58,12 @@ class Command:
         if isinstance(arg, list):
             arg = arg[0]
         
-        if arg.startswith("-"):
-            arg = " " + arg
+        arg = " " + arg
 
         pos = arg.find(" -")
         if pos != -1 and not arg[pos:].startswith(" --"):
             args = re.findall("(\s+--.*$|(^\s+|\s+-)\S+.*?)(?=\s+-|\s*$)", arg)
-            args = map(lambda tup: tup[0], args)
+            args = [*map(lambda tup: tup[0], args)]
 
             buff = []
             for a in args:
@@ -67,7 +76,7 @@ class Command:
                         a = tmp[1:].replace(key, "", 1)
 
                     elif key:
-                        kwargs[key] = val
+                        kwargs[self.parse_key_alias(key)] = val
                         continue
 
                 buff.append(a)
@@ -75,6 +84,14 @@ class Command:
             kwargs["arg"] = "".join(buff).strip()
 
         return kwargs
+    
+    def parse_key_alias(self, key):
+        # Alias of an Alias
+        if key in self.key_aliases:
+            return self.parse_key_alias(self.key_aliases[key])
+        # We found the key!
+        else:
+            return key
     
     
 
