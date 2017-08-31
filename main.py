@@ -52,7 +52,7 @@ async def on_message(message):
 
     if ready:
         if message.author != bot.user:
-            if message.content == "§die":
+            if message.content == "§die" and message.author.id in admin_ids:
                 exit()
             if message.content.startswith(tuple(bot.prefix)):
                 await parse_message(message)
