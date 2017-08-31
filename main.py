@@ -66,6 +66,7 @@ async def on_message(message):
 async def parse_message(message):
     """Removes Prefixes and Passes the Command to parse_command()"""
 
+    current = []
     content = message.content
     for pfx in bot.prefix:
         if content.startswith(pfx):
@@ -74,16 +75,16 @@ async def parse_message(message):
             break
             
     try:
-        await parse_command(message, command)
-
+        await parse_command(message, current, command)
+    
     # Error parsing (◕‿◕✿)
     except FunctionException as e:
-        log(message.author, "FUNCTION EXPLODED", content, e)
+        log(message.author, "FUNCTION EXPLODED", current[-1], e)
         await bot.send_message(message.channel,
             "Kazuma, Kazuma. Is this normal?```\n> {}\n```".format(str(e)))
 
     except Exception as e:
-        log(message.author, "ERROR", content, e)
+        log(message.author, "ERROR", current[-1], e)
         await bot.send_message(message.channel,
             "This is NOT how it works. ಠ_ಠ```\n> {}```".format(str(e)))
 
@@ -94,9 +95,10 @@ async def parse_message(message):
         #    await bot.send_message(message.channel, "Something went wrong and you're the cause. You suck.")
 
 
-async def parse_command(message, command, carry = None):
+async def parse_command(message, current, command, carry = None):
     """Parse commands"""
     
+    current.append("parse_command: " + command)
     stack = []
     cmds = command.split(" & ")
     
@@ -104,19 +106,20 @@ async def parse_command(message, command, carry = None):
         car = Start(carry)
         cmd = cmd.split(" | ")
         for c in cmd:
-            r = await execute(message, c, stack, car)
+            r = await execute(message, current, c, stack, car)
             stack.append(r)
             car()
     return r
 
 
-async def execute(message, command, stack, carry = False):
+async def execute(message, current, command, stack, carry = False):
+    current.append("execute: " + command)
     command = command.strip()
     func_name = command.split(" ", 1)[0]
     arg = command.replace(func_name, "", 1).strip()
 
     if func_name in aliases:
-        return await parse_command(message, "{} {}".format(parse_alias(func_name), arg), carry)
+        return await parse_command(message, current, "{} {}".format(parse_alias(func_name), arg), carry)
     
     # Check if the command actually exists
     elif func_name in commands:
