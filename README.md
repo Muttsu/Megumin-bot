@@ -1,2 +1,2 @@
 # Megumin-bot
-Explosion
+Bakuretsu Bakuretsu La La La..
