@@ -116,7 +116,7 @@ async def execute(message, command, stack, carry = False):
     arg = command.replace(func_name, "", 1).strip()
 
     if func_name in aliases:
-        return await parse_command(parse_alias(func_name), carry, message = message)
+        return await parse_command(message, "{} {}".format(parse_alias(func_name), arg), carry)
     
     # Check if the command actually exists
     elif func_name in commands:
