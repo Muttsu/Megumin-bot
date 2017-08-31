@@ -51,8 +51,7 @@ async def on_message(message):
     """Commands and Stuff"""
 
     if ready:
-        # Test Only
-        if message.channel.name == "megumin-test" and message.author != bot.user:
+        if message.author != bot.user:
             if message.content == "§die":
                 exit()
             if message.content.startswith(tuple(bot.prefix)):
