@@ -51,12 +51,12 @@ async def ping(ctx, msg, silent = False):
 
 @command(key_aliases = {"carry": "formatstr", "s": "silent", "r": "raw"})
 async def echo(ctx, message: str, silent = False, raw = False, formatstr = ""):
-    """Displays text
+    """Displays text [-r or -raw] [-s or -silent] [-formatstr:str]
     Usage: echo <msg:str>"""
     
-    message = message.strip().format(formatstr)
+    message = message.format(formatstr)
     if not raw:
-        message = re.sub("\s+", " ", message)
+        message = re.sub("\s+", " ", message).strip()
     if not silent:
         await ctx.say(message)
     return message
