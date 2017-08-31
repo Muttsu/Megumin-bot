@@ -124,9 +124,11 @@ async def execute(message, command, stack, carry = False):
         func.ctx = Context(bot = bot, message = message)
         
         if carry:
-            arg = str(stack.pop())
+            carry = str(stack.pop())
+        else:
+            carry = None
     
-        r = await func(arg)
+        r = await func(arg, carry = carry)
         
         # Log the return value
         log(message.author, "SUCCESS", command, r)
