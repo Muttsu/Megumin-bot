@@ -6,10 +6,9 @@ from core import *
 from datetime import datetime
 import json
 import importlib
-import re
 
 
-ready = Start()
+ready = Start("BOT")
 
 
 bot = discord.Client()
@@ -58,8 +57,8 @@ async def on_message(message):
             if message.content == "§die":
                 exit()
             if message.content.startswith(tuple(bot.prefix)):
-                    await parse_message(message)
-                    print("-"*3)
+                await parse_message(message)
+                print("-"*3)
 
 #################################
 # == There is NOTHING To See == #
@@ -76,8 +75,7 @@ async def parse_message(message):
             break
             
     try:
-        message.stack = []
-        await parse_command(cmd, message = message)
+        await parse_command(message, command)
 
     # Error parsing (◕‿◕✿)
     except FunctionException as e:
@@ -85,10 +83,10 @@ async def parse_message(message):
         await bot.send_message(message.channel,
             "Kazuma, Kazuma. Is this normal?```\n> {}\n```".format(str(e)))
 
-    except Exception as e:
-        log(message.author, "ERROR", content, e)
-        await bot.send_message(message.channel,
-            "This is NOT how it works. ಠ_ಠ```\n> {}```".format(str(e)))
+#    except Exception as e:
+#        log(message.author, "ERROR", content, e)
+#        await bot.send_message(message.channel,
+#            "This is NOT how it works. ಠ_ಠ```\n> {}```".format(str(e)))
 
         # So I don't get depressed (◕‿◕✿)
         #if message.author.id in admin_ids:
@@ -97,47 +95,47 @@ async def parse_message(message):
         #    await bot.send_message(message.channel, "Something went wrong and you're the cause. You suck.")
 
 
-async def parse_command(command, carry = False, message):
+async def parse_command(message, command, carry = None):
     """Parse commands"""
     
+    stack = []
     cmds = command.split(" & ")
     
     for cmd in cmds:
         carry = Start(carry)
         cmd = cmd.split(" | ")
         for c in cmd:
-            message.stack.append(await execute(c, carry, message = message))
+            r = await execute(message, c, stack, carry)
+            stack.append(r)
             carry()
-    
-    for cmd in cmds:
-        if cmd in "&|":
-            if cmd == "|":
-                
-    
-    
-    func = parse_alias(cmd[0])
-    args = cmd[1:]
+    return r
 
 
-    
+async def execute(message, command, stack, carry = False):
+    command = command.strip()
+    func_name = command.split(" ", 1)[0]
+    arg = command.replace(func_name, "", 1).strip()
 
-    # Check if the command actually exists
-    if func in commands:
-        func = commands[func]
-        # Smartz way to pass bot and message objects
-        func.ctx = Context(bot = bot, message = message)
-        # Log the return value
-        log(message.author, "SUCCESS", command,
-            await func(*args))
-
-    else:
-        raise Exception("'{}': not a command".format(func))
-
-    {}
-async def execute(func_name, carry = False, message):
     if func_name in aliases:
         return await parse_command(parse_alias(func_name), carry, message = message)
     
+    # Check if the command actually exists
+    elif func_name in commands:
+        func = commands[func_name]
+        # Smartz way to pass bot and message objects
+        func.ctx = Context(bot = bot, message = message)
+        
+        if carry:
+            arg = str(stack.pop())
+    
+        r = await func(arg)
+        
+        # Log the return value
+        log(message.author, "SUCCESS", command, r)
+        return r
+
+    else:
+        raise Exception("'{}': not a command".format(func_name))
 
 
 def parse_alias(func_name):
