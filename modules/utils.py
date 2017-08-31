@@ -1,10 +1,9 @@
-import asyncio
 from datetime import datetime
 import re
 
 from core import *
 
-@command()
+@command(ignore_kwargs = True)
 async def help(ctx, func: str):
     """Displays the reference manual for commands and aliases
     Usage: help <func:str>"""
@@ -25,7 +24,7 @@ async def help(ctx, func: str):
     return doc
 
 @command()
-async def delLastMsg(ctx, *args, **kwargs):
+async def delLMsg(ctx, *args, **kwargs):
     await ctx.bot.delete_message(ctx.message)
     return 0
 
