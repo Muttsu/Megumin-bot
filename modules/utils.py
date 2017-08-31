@@ -23,8 +23,8 @@ async def help(ctx, func: str):
     await ctx.say(doc)
     return doc
 
-@command()
-async def delMsg(ctx, *args, **kwargs):
+@command(ignore_all=True, ignore_ctx=False)
+async def delMsg(ctx):
     """Deletes the command message
     Usage: delMsg
     Return: 0"""
@@ -35,8 +35,8 @@ async def delMsg(ctx, *args, **kwargs):
     except:
         raise FunctionException()
 
-@command(ignore_carry = True, ignore_kwargs = True)
-async def ping(ctx, msg):
+@command(ignore_all=True, ignore_ctx=False)
+async def ping(ctx):
     """Returns the latency between the Server and the Bot
     Usage: ping [-s or -Silent]
     Return: ping"""
@@ -51,7 +51,7 @@ async def ping(ctx, msg):
 
     return ping_latency
 
-@command(key_aliases = {"carry": "formatstr", "s": "silent", "r": "raw"})
+@command(key_aliases = {"carry": "formatstr", "r": "raw"})
 async def echo(ctx, message, raw = False, formatstr = ""):
     """Displays text [-r or -raw] [-s or -silent] [-formatstr:str]
     Usage: echo <msg:str>"""

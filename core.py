@@ -36,9 +36,12 @@ class Command:
         self.doc = self.func.__doc__
         self.ctx = kwargs.pop("ctx", None)
 
-        self.ignore_ctx = kwargs.pop("ignore_ctx", False)
-        self.ignore_kwargs = kwargs.pop("ignore_kwargs", False)
-        self.ignore_carry = kwargs.pop("ignore_carry", False)
+        self.ignore_all = kwargs.pop("ignore_all", False)
+
+        self.ignore_ctx = kwargs.pop("ignore_ctx", self.ignore_all)
+        self.ignore_kwargs = kwargs.pop("ignore_kwargs", self.ignore_all)
+        self.ignore_carry = kwargs.pop("ignore_carry", self.ignore_all)
+        self.ignore_args = kwargs.pop("ignore_args", self.ignore_all)
 
         self.key_aliases = kwargs.pop("key_aliases", {})
         self.key_aliases.update({"-s":"-silent", "-r":"-repeat"})
@@ -50,9 +53,11 @@ class Command:
         args_dict = parse_args(args, self.key_aliases)
 
         ctx.silent = args_dict.pop("-silent", None)
-        repeat = int(args_dict.pop("-repeat", None) or 1)
+        repeat = int(args_dict.pop("-repeat", 1))
+        if repeat < 1:
+            repeat = 1
 
-        if self.ignore_kwargs:
+        if self.ignore_kwargs or self.ignore_all:
             kwargs = {}
 
         else:
@@ -61,7 +66,7 @@ class Command:
                 args = [kwargs.pop("arg")]
 
         if not self.ignore_carry and carry is not None:
-            if args[0]:
+            if args[0] or self.ignore_args:
                 kwargs[parse_alias("carry", self.key_aliases)] = carry
             else:
                 args[0] = carry
@@ -69,12 +74,18 @@ class Command:
         if not self.ignore_ctx:
             args.insert(0, ctx)
 
+        if self.ignore_args:
+            args.pop()
+
         for _ in range(repeat):
             if self.ctx.message.author.id not in admin_ids and self.ctx.count > 7:
                 raise Exception("Command cap reached")
             self.ctx.count += 1
 
-            r = await self.func(*args, **kwargs)
+            if self.ctx.bot.commands_enabled:
+                r = await self.func(*args, **kwargs)
+            else:
+                raise Exception("Commands disabled")
         return r
 
 
@@ -85,7 +96,7 @@ class Context:
             self.message = kwargs.pop("message", None)
             self.bot = kwargs.pop("bot", None)
             self.silent = kwargs.pop("silent", None)
-            self.current = kwargs.pop("current", [])
+            self.current = kwargs.pop("current", ["Context declared"])
             self.count = kwargs.pop("count", 0)
 
             self.thread = [Thread()]
@@ -149,11 +160,13 @@ async def parse_message(ctx):
     # Error parsing (◕‿◕✿)
     except FunctionException as e:
         log(ctx.message.author, "FUNCTION EXPLODED", ctx.current[-1], e)
-        await ctx.say("Kazuma, Kazuma. Is this normal?```\n> {}\n```".format(str(e)))
+        await ctx.say("<@{a}>, <@{a}>. Is this normal?```\n> {e}\n```"
+            .format(a=ctx.message.author.id, e=str(e)))
 
-    #except Exception as e:
-    #    log(ctx.message.author, "ERROR", ctx.current[-1], e)
-    #    await ctx.say("This is NOT how it works. ಠ_ಠ```\n> {}```".format(str(e)))
+    except Exception as e:
+        log(ctx.message.author, "ERROR", ctx.current[-1], e)
+        await ctx.say("<@{a}>, this is NOT how it works. ಠ_ಠ```\n> {e}```"
+            .format(a=ctx.message.author.id, e=str(e)))
 
         # So I don't get depressed (◕‿◕✿)
         #if message.author.id in admin_ids:
@@ -164,20 +177,20 @@ async def parse_message(ctx):
 
 async def parse_command(ctx, command, thread = None):
     """Parse commands"""
+    if ctx.bot.commands_enabled:
+        ctx.current.append("parse_command: " + command)
+        cmds = command.split(" & ")
 
-    ctx.current.append("parse_command: " + command)
-    cmds = command.split(" & ")
+        for cmd in cmds:
+            if thread is None:
+                thread = ctx.new_thread(command = command)
 
-    for cmd in cmds:
-        if thread is None:
-            thread = ctx.new_thread(command = command)
-
-        cmd = cmd.split(" | ")
-        for c in cmd:
-            r = await execute(ctx, c, thread)
-            ctx.thread[thread].stack.append(r)
-            ctx.thread[thread].carry()
-    return r
+            cmd = cmd.split(" | ")
+            for c in cmd:
+                r = await execute(ctx, c, thread)
+                ctx.thread[thread].stack.append(r)
+                ctx.thread[thread].carry()
+        return r
 
 
 async def execute(ctx, command, thread):
@@ -186,29 +199,30 @@ async def execute(ctx, command, thread):
     func_name = command.split(" ", 1)[0]
     arg = command.replace(func_name, "", 1).strip()
 
-    if func_name in aliases:
-        return await parse_command(ctx,
-            "{} {}".format(parse_alias(func_name), arg), thread)
+    if command:
+        if func_name in aliases:
+            return await parse_command(ctx,
+                "{} {}".format(parse_alias(func_name), arg), thread)
 
-    # Check if the command actually exists
-    elif func_name in commands:
-        func = commands[func_name]
-        # Smartz way to pass bot and message objects
-        func.ctx = ctx
+        # Check if the command actually exists
+        elif func_name in commands:
+            func = commands[func_name]
+            # Smartz way to pass bot and message objects
+            func.ctx = ctx
 
-        if ctx.thread[thread].carry:
-            carry = ctx.thread[thread].stack.pop()
+            if ctx.thread[thread].carry:
+                carry = ctx.thread[thread].stack.pop()
+            else:
+                carry = None
+
+            r = await func(arg, carry = carry)
+
+            # Log the return value
+            log(ctx.message.author, "SUCCESS", command, r)
+            return r
+
         else:
-            carry = None
-
-        r = await func(arg, carry = carry)
-
-        # Log the return value
-        log(ctx.message.author, "SUCCESS", command, r)
-        return r
-
-    else:
-        raise Exception("'{}': not a command".format(func_name))
+            raise Exception("'{}': not a command".format(func_name))
 
 
 def parse_args(arg, als):
