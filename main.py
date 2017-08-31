@@ -12,6 +12,11 @@ ready = Start("BOT")
 
 bot = discord.Client()
 
+if "commands_enabled" in secret:
+    bot.commands_enabled = secret["commands_enabled"]
+else:
+    bot.commands_enabled = True
+
 token = secret["token"]
 
 admin_ids = secret["admins"]
@@ -57,7 +62,20 @@ async def on_message(message):
         if message.author != bot.user:
             if message.content == "§die" and message.author.id in admin_ids:
                 exit()
-            if message.content.startswith(tuple(bot.prefix)):
+
+            elif message.content.startswith("§commands_enabled"):
+                string = message.content.replace("§commands_enabled", "", 1).strip()
+                if re.match("f", string):
+                    bot.commands_enabled = False
+                elif re.match("t", string):
+                    bot.commands_enabled = True
+
+                if bot.commands_enabled:
+                    log(message.author, "Commands Enabled")
+                else:
+                    log(message.author, "Commands Disabled")
+
+            elif message.content.startswith(tuple(bot.prefix)):
                 log(message.author, message.content)
                 ctx = Context(bot = bot, message = message)
                 await parse_message(ctx)
