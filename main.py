@@ -1,4 +1,3 @@
-import asyncio
 import discord
 
 from core import *
@@ -8,7 +7,7 @@ import json
 import importlib
 
 
-ready = Start()
+ready = Start("BOT")
 
 
 bot = discord.Client()
@@ -57,74 +56,95 @@ async def on_message(message):
             if message.content == "§die":
                 exit()
             if message.content.startswith(tuple(bot.prefix)):
-                    await parse_message(bot, message)
-                    print("-"*3)
+                await parse_message(message)
+                print("-"*3)
 
 #################################
 # == There is NOTHING To See == #
 #################################
 
-async def parse_message(bot, message):
-    """Transforms message content into an array of commands"""
+async def parse_message(message):
+    """Removes Prefixes and Passes the Command to parse_command()"""
 
     content = message.content
     for pfx in bot.prefix:
         if content.startswith(pfx):
-            # Remove prefix from message
-            commands = map(lambda string: string.strip(),
-                # Split the commands
-                content.replace(pfx, "", 1).split(" & "))
+            # Remove prefix from message 
+            command = content.replace(pfx, "", 1).strip()
             break
-
-    for cmd in commands:
-        try:
-            await parse_command(cmd, bot, message)
-
-        # Error parsing (◕‿◕✿)
-        except FunctionException as e:
-            log(message.author, "FUNCTION EXPLODED", content, e)
-            await bot.send_message(message.channel, "Kazuma, Kazuma. Is this normal?```\n> {}\n```".format(str(e)))
-        except Exception as e:
-            log(message.author, "ERROR", content, e)
-            await bot.send_message(message.channel, "This is NOT how it works. ಠ_ಠ```\n> {}```".format(str(e)))
             
-            # So I don't get depressed (◕‿◕✿)
-            #if message.author.id in admin_ids:
-            #    await bot.send_message(message.channel, "Aww")
-            #else:
-            #    await bot.send_message(message.channel, "Something went wrong and you're the cause. You suck.")
+    try:
+        await parse_command(message, command)
+
+    # Error parsing (◕‿◕✿)
+    except FunctionException as e:
+        log(message.author, "FUNCTION EXPLODED", content, e)
+        await bot.send_message(message.channel,
+            "Kazuma, Kazuma. Is this normal?```\n> {}\n```".format(str(e)))
+
+    except Exception as e:
+        log(message.author, "ERROR", content, e)
+        await bot.send_message(message.channel,
+            "This is NOT how it works. ಠ_ಠ```\n> {}```".format(str(e)))
+
+        # So I don't get depressed (◕‿◕✿)
+        #if message.author.id in admin_ids:
+        #    await bot.send_message(message.channel, "Aww")
+        #else:
+        #    await bot.send_message(message.channel, "Something went wrong and you're the cause. You suck.")
 
 
-async def parse_command(command, bot, message):
-    """Parse individual commands"""
-
-    cmd = command.split(" ", 1)
-    func = parse_alias(cmd[0])
-    args = cmd[1:]
-
+async def parse_command(message, command, carry = None):
+    """Parse commands"""
     
+    stack = []
+    cmds = command.split(" & ")
+    
+    for cmd in cmds:
+        car = Start(carry)
+        cmd = cmd.split(" | ")
+        for c in cmd:
+            r = await execute(message, c, stack, car)
+            stack.append(r)
+            car()
+    return r
 
+
+async def execute(message, command, stack, carry = False):
+    command = command.strip()
+    func_name = command.split(" ", 1)[0]
+    arg = command.replace(func_name, "", 1).strip()
+
+    if func_name in aliases:
+        return await parse_command(message, "{} {}".format(parse_alias(func_name), arg), carry)
+    
     # Check if the command actually exists
-    if isinstance(func, Command):
+    elif func_name in commands:
+        func = commands[func_name]
         # Smartz way to pass bot and message objects
         func.ctx = Context(bot = bot, message = message)
+        
+        if carry:
+            arg = str(stack.pop())
+    
+        r = await func(arg)
+        
         # Log the return value
-        log(message.author, "SUCCESS", command,
-            await func(*args))
+        log(message.author, "SUCCESS", command, r)
+        return r
 
     else:
-        raise Exception("'{}': not a command".format(func))
-        
-        
+        raise Exception("'{}': not a command".format(func_name))
+
+
 def parse_alias(func_name):
     # Alias of an Alias
     if func_name in aliases:
         return parse_alias(aliases[func_name])
-    # We found the Function
-    elif func_name in commands:
-        return commands[func_name]
+    # We found the Function (maybe?)
     else:
         return func_name
+
 
 
 def log(author, state: str, message = "", info = None):
