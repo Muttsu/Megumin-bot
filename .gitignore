@@ -1,2 +1,7 @@
 config.json
 *.pyc
+/bin
+/lib
+pyvenv.cfg
+run
+include
