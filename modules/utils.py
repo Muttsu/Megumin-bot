@@ -25,13 +25,18 @@ async def help(ctx, func: str):
 
 @command()
 async def delLMsg(ctx, *args, **kwargs):
+    """Deletes user's last message
+    Usage: delLMsg
+    Return: 0"""
+    
     await ctx.bot.delete_message(ctx.message)
     return 0
 
 @command()
 async def ping(ctx, msg, s = False, silent = False):
     """Returns the latency between the Server and the Bot
-    Usage: ping"""
+    Usage: ping [-s or -Silent]
+    Return: ping"""
 
     local_time = datetime.now()
     ping_latency = (local_time - ctx.message.timestamp).microseconds // 1000
