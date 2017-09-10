@@ -202,7 +202,7 @@ async def execute(ctx, command, thread):
     if command:
         if func_name in aliases:
             return await parse_command(ctx,
-                "{} {}".format(parse_alias(func_name), arg), thread)
+                "{} {}".format(parse_alias(func_name, aliases), arg), thread)
 
         # Check if the command actually exists
         elif func_name in commands:
