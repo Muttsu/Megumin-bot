@@ -67,20 +67,16 @@ class Command:
         self.opt_aliases = {"s":"silent", "r":"repeat", "v":"verbose"}
 
 
-    async def __call__(self, ctx, *args, **kwargs):
-        args = list(args)
-        carry = kwargs.pop("carry", None)
-        ctx.silent = kwargs.pop("silent", False)
-        repeat = int(kwargs.pop("repeat", 1))
+    async def __call__(self, *args, **kwargs):
+        ctx = kwargs.pop("ctx", None)
+        carry= kwargs.pop("carry", None)
+        ctx.silent = kwargs.pop("-silent", False)
+        repeat = int(kwargs.pop("-repeat", 1))
         if repeat < 1:
             repeat = 1
 
         if self.ignore_args:
             args = []
-        if not self.ignore_ctx:
-            args.insert(0, ctx)
-        if not self.ignore_carry:
-            args.insert(1, carry)
         if self.ignore_kwargs:
             kwargs = {}
         else:
@@ -89,6 +85,10 @@ class Command:
                 key = parse_alias(key, self.key_aliases)
                 kwargs[key] = val
 
+        if not self.ignore_ctx and ctx is not None:
+            args.insert(0, ctx)
+        if not self.ignore_carry and carry is not None:
+            args.insert(1, carry)
         for _ in range(repeat):
             ret = await self.func(*args, **kwargs)
         return ret
@@ -191,10 +191,9 @@ async def execute(ctx, cmd, thread_id):
     if cmd:
         func_name = cmd.split(" ", 1)[0]
         func_args = cmd.replace(func_name, "", 1).strip()
-        args, kwargs = parse_args(func_args)
 
         if func_name in ALIASES:
-            return await parse_command(ctx, parse_alias(func_name).format(*args,**kwargs),thread_id)
+            return await parse_command(ctx, parse_alias(func_name).format(func_args),thread_id)
 
         # Check if the command actually exists
         elif func_name in COMMANDS:
@@ -205,7 +204,12 @@ async def execute(ctx, cmd, thread_id):
             else:
                 carry = None
 
-            ret = await func(ctx, *args, carry=carry, **kwargs)
+            args, kwargs = parse_args(func_args)
+            
+            kwargs["carry"] = carry
+            kwargs["ctx"] = ctx
+
+            ret = await func(*args, **kwargs)
 
             # Log the return value
             log(ctx.message.author, "SUCCESS", cmd, ret)
