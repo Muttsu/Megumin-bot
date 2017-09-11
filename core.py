@@ -89,7 +89,6 @@ class Command:
                 key = parse_alias(key, self.key_aliases)
                 kwargs[key] = val
 
-
         for _ in range(repeat):
             ret = await self.func(*args, **kwargs)
         return ret

@@ -8,19 +8,19 @@ async def help(ctx, func: str):
     """Displays the reference manual for commands and aliases
     Usage: help <func:str>"""
 
-    if func in aliases:
-        doc = "'{}' is an alias for '{}'".format(func, aliases[func])
+    if func in ALIASES:
+        doc = "'{}' is an alias for '{}'".format(func, ALIASES[func])
 
-    elif func in commands:
+    elif func in COMMANDS:
         doc = "Manual entry for '{}' is empty".format(func)
-        if commands[func].doc:
-            doc = "'{}': {}".format(func, commands[func].doc)
+        if COMMANDS[func].doc:
+            doc = "'{}': {}".format(func, COMMANDS[func].doc)
 
     else:
         doc = "No manual entry for '{}'".format(func)
         raise FunctionException(doc)
 
-    await ctx.say(doc)
+    await ctx.reply(doc)
     return doc
 
 @command(ignore_all=True, ignore_ctx=False)
@@ -44,22 +44,23 @@ async def ping(ctx):
     local_time = datetime.now()
     ping_latency = (local_time - ctx.message.timestamp).microseconds // 1000
 
-    pong = await ctx.say('ping({}ms)'.format(str(ping_latency)))
+    pong = await ctx.reply('ping({}ms)'.format(str(ping_latency)))
     if pong is not None:
         pong_latency = (pong.timestamp - local_time).microseconds // 1000
         await ctx.bot.edit_message(pong, '{} pong({}ms)'.format(pong.content, str(pong_latency)))
 
     return ping_latency
 
-@command(key_aliases = {"carry": "formatstr", "r": "raw"})
-async def echo(ctx, message, raw = False, formatstr = ""):
+@command(key_aliases = {"f": "formatstr", "r": "raw"})
+async def echo(ctx, carry=None, message="{}", raw = False, formatstr = ""):
     """Displays text [-r or -raw] [-s or -silent] [-formatstr:str]
     Usage: echo <msg:str>"""
 
+    formatstr = carry or formatstr
     message = str(message).format(formatstr)
 
     if not raw:
         message = re.sub("\s+", " ", message).strip()
-    await ctx.say(message)
+    await ctx.reply(message)
     return message
 
