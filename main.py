@@ -1,38 +1,16 @@
-import discord
-
-from core import *
-
-from datetime import datetime
-import json
+"""File to run"""
 import importlib
+from core import * # pylint: disable=W0614,W0401
 
 
-ready = Start("BOT")
+ready = Start("BOT") # pylint: disable=C0103
 
 
-bot = discord.Client()
-
-if "commands_enabled" in secret:
-    bot.commands_enabled = secret["commands_enabled"]
-else:
-    bot.commands_enabled = True
-
-token = secret["token"]
-
-admin_ids = secret["admins"]
-importlib.import_module("core").admin_ids = admin_ids
-
-prefix = secret["prefix"]
-modules = secret["modules"]
-if "aliases" in secret:
-    # wa ga nawa megumin! EXPLOSION (it was super effective!) ಠ_ಠ
-    aliases = secret["aliases"]
-    importlib.import_module("core").aliases = aliases
-
-
-for mod in modules:
+# == Import custom modules ==
+for mod in MODULES:
     importlib.import_module("modules." + mod)
-print("Availiable Commands: {}".format(sorted(tuple(commands.keys()) + tuple(aliases.keys()))))
+
+print("Availiable Commands: {}".format(sorted(tuple(COMMANDS.keys()) + tuple(ALIASES.keys()))))
 
 
 @bot.event
@@ -43,13 +21,8 @@ async def on_ready():
     print("-"*63)
 
     # Prefix Stuff
-    if isinstance(prefix, str):
-        bot.prefix = [prefix]
-    else:
-        bot.prefix = [*prefix]
-    # Support for @mentions
-    bot.prefix.append('<@{}> '.format(bot.user.id))
-    bot.prefix.append('<@!{}> '.format(bot.user.id))
+    PREFIX.append('<@{}> '.format(bot.user.id))
+    PREFIX.append('<@!{}> '.format(bot.user.id))
 
     ready()
 
@@ -60,7 +33,7 @@ async def on_message(message):
 
     if ready:
         if message.author != bot.user:
-            if message.content == "§die" and message.author.id in admin_ids:
+            if message.content == "§die" and message.author.id in ADMIN_IDS:
                 exit()
 
             elif message.content.startswith("§commands_enabled"):
@@ -69,17 +42,16 @@ async def on_message(message):
                     bot.commands_enabled = False
                 elif re.match("t", string):
                     bot.commands_enabled = True
-
                 if bot.commands_enabled:
                     log(message.author, "Commands Enabled")
                 else:
                     log(message.author, "Commands Disabled")
 
-            elif message.content.startswith(tuple(bot.prefix)):
+            elif message.content.startswith(tuple(PREFIX)):
                 log(message.author, message.content)
-                ctx = Context(bot = bot, message = message)
+                ctx = Context(bot=bot, message=message)
                 await parse_message(ctx)
                 print("-"*3)
 
 
-bot.run(token)
+bot.run(TOKEN)
