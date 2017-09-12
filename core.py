@@ -68,6 +68,7 @@ class Command:
 
 
     async def __call__(self, *args, **kwargs):
+        args = list(args)
         ctx = kwargs.pop("ctx", None)
         carry= kwargs.pop("carry", None)
         ctx.silent = kwargs.pop("-silent", False)
