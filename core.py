@@ -69,10 +69,13 @@ class Command:
 
     async def __call__(self, *args, **kwargs):
         args = list(args)
+
+        # take out the option kwargs
         ctx = kwargs.pop("ctx", None)
         carry= kwargs.pop("carry", None)
         ctx.silent = kwargs.pop("-silent", False)
         repeat = int(kwargs.pop("-repeat", 1))
+
         if repeat < 1:
             repeat = 1
 
@@ -80,6 +83,8 @@ class Command:
             args = []
         if self.ignore_kwargs:
             kwargs = {}
+
+        # parse the alises for kwargs
         else:
             for key, val in kwargs.items():
                 kwargs.pop(key)

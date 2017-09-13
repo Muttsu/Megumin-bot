@@ -49,7 +49,10 @@ async def on_message(message):
 
             elif message.content.startswith(tuple(PREFIX)):
                 log(message.author, message.content)
+
+                #!!! add new bot class with active context
                 ctx = Context(bot=bot, message=message)
+                
                 await parse_message(ctx)
                 print("-"*3)
 
