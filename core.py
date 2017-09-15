@@ -248,7 +248,7 @@ async def execute(ctx, cmd, thread_id):
                 carry = None
 
             args, kwargs = parse_args(func_args)
-            
+
             kwargs["carry"] = carry
             kwargs["ctx"] = ctx
 
@@ -272,7 +272,7 @@ def parse_args(content:str):
     args = []
     kwargs = {}
 
-    for match in re.finditer(r"\-([^\s\:\"]+)\s?(?:(\"[^\"\\]*(?:\\.[^\"\\]*)*)\"|([^\s]+))?", content):
+    for match in re.finditer(r"\-([^\s\:\"]+)\:?(?:(\"[^\"\\]*(?:\\.[^\"\\]*)*)\"|([^\s]+))?", content):
         if match[0].startswith('"'):
             continue
         arg = match[2] or match[3]
