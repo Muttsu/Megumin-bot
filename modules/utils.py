@@ -52,7 +52,7 @@ async def ping(ctx):
     return ping_latency
 
 @command(key_aliases = {"f": "formatstr", "r": "raw"})
-async def echo(ctx, carry=None, message="{}", raw = False, formatstr = ""):
+async def echo(ctx, carry, message="{}", raw = False, formatstr = ""):
     """Displays text [-r or -raw] [-s or -silent] [-formatstr:str]
     Usage: echo <msg:str>"""
 
