@@ -46,7 +46,13 @@ def command(**kwargs):
         # add the command to dict
         name = kwargs.pop("name", fct.__name__)
         cmd = Command(func=fct, **kwargs)
-        COMMANDS[name] = cmd
+
+        if name in COMMANDS:
+            sub = kwargs.pop("switch", None)
+            COMMANDS[name].sub_commdands[sub] = cmd
+
+        else: 
+            COMMANDS[name] = cmd
         return cmd
     return dec
 
@@ -90,6 +96,7 @@ class Command:
 
         self.func = kwargs.pop("func", None)
         self.doc = self.func.__doc__
+        self.sub_commdands = {}
 
         self.ignore_all = kwargs.pop("ignore_all", False)
 
