@@ -47,9 +47,9 @@ async def ping(ctx):
     pong = await ctx.reply('ping({}ms)'.format(str(ping_latency)))
     if pong is not None:
         pong_latency = (pong.timestamp - local_time).microseconds // 1000
-        await ctx.bot.edit_message(pong, '{} pong({}ms)'.format(pong.content, str(pong_latency)))
+        ret = (await ctx.bot.edit_message(pong, '{} pong({}ms)'.format(pong.content, str(pong_latency)))).content
 
-    return ping_latency
+    return ret
 
 @command(key_aliases = {"f": "formatstr", "r": "raw"})
 async def echo(ctx, carry, message="{}", raw = False, formatstr = ""):
