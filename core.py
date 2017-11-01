@@ -5,20 +5,6 @@ import inspect
 from datetime import datetime
 import discord
 
-# == Config File ==
-with open("config.json", "r") as f:
-    CONFIG = json.load(f)
-    f.close()
-
-ADMIN_IDS = CONFIG["admins"]
-ALIASES = CONFIG["aliases"]
-COMMANDS = {}
-MODULES = CONFIG["modules"]
-PREFIX = CONFIG["prefix"]
-if isinstance(PREFIX, str):
-    PREFIX = [PREFIX]
-TOKEN = CONFIG["token"]
-
 
 # == Exceptions == TO BE MOVED TO A NEW FILE ==
 class FunctionException(Exception):
@@ -35,8 +21,9 @@ def command(**kwargs):
         param = [sig[k] for k in sig]
         del sig
         name = kwargs.pop("name", fct.__name__)
-        cmd = Command(func=fct, param=param, **kwargs) 
-        COMMANDS[name] = cmd
+        cmd = Command(func=fct, param=param, **kwargs)
+        bot.commands[name] = cmd
+        #subcommands to be implemented
         return cmd
     return dec
 
@@ -46,31 +33,19 @@ class Bot(discord.Client):
     """helper class whith some usefull functions"""
     def __init__(self, **kwargs):
         discord.Client.__init__(self)
-        self.Commands = kwargs.pop("commands", {})
-        self.active_ctx = kwargs.pop("active_ctx",[])
 
-
-    async def reply(self, msg: str):
-        ctx = self.ctx(ctx_id = 0) #find a way to get ctx
-        if not ctx.silent:
-            msg = msg.strip()
-            if msg:
-                return await self.send_message(ctx.message.channel, msg)
-            else:
-                raise FunctionException("Cannot send empty message")
-        else:
-            return None
-
-
-    def new_ctx(self, **kwargs):
-        ctx = kwargs.pop("ctx", None)
-        self.active_ctx.append(ctx)
-        return len(self.active_ctx) - 1
-
-    def ctx(self, **kwargs):
-        ctx_id = kwargs.pop("ctx_id", len(self.active_ctx) - 1)
-        return self.active_ctx[ctx_id]
-
+        with open("config.json", "r") as f:
+            CONFIG = json.load(f)
+            f.close()
+        self.commands = kwargs.pop("commands", {})
+        self.admin_ids = CONFIG["admins"]
+        self.aliases = CONFIG["aliases"]
+        self.modules = CONFIG["modules"]
+        self.command_prefix = CONFIG["prefix"]
+        if isinstance(self.command_prefix, str):
+            self.command_prefix = [self.command_prefix]
+        self.token = CONFIG["token"]
+        del CONFIG
 
 
 class Command:
@@ -81,7 +56,6 @@ class Command:
         self.func = kwargs.pop("func", None)
         self.doc = self.func.__doc__
         self.param = kwargs.pop("param", None)
-        self.sub_commdands = {}
 
         self.ignore_all = kwargs.pop("ignore_all", False)
 
@@ -102,11 +76,6 @@ class Command:
         # take out the option kwargs
         ctx = kwargs.pop("ctx", None)
         carry= kwargs.pop("carry", None)
-        ctx.silent = kwargs.pop("-silent", False)
-        repeat = int(kwargs.pop("-repeat", 1))
-
-        if repeat < 1:
-            repeat = 1
 
         if self.ignore_args:
             args = []
@@ -124,9 +93,8 @@ class Command:
             args.insert(0, ctx)
         if not self.ignore_carry and carry is not None:
             args.insert(1, carry)
-        for _ in range(repeat):
-            ret = await self.func(*args, **kwargs)
-        return ret
+
+        return await self.func(*args, **kwargs)
 
 
 class Context:
@@ -148,14 +116,11 @@ class Context:
 
     async def reply(self, msg):
         """Helper function"""
-        if not self.silent:
-            msg = msg.strip()
-            if msg:
-                return await self.bot.send_message(self.message.channel, msg)
-            else:
-                raise FunctionException("Cannot send empty message")
+        msg = msg.strip()
+        if msg:
+            return await self.bot.send_message(self.message.channel, msg)
         else:
-            return None
+            raise FunctionException("Cannot send empty message")
 
 
 class Start:
@@ -179,7 +144,7 @@ async def parse_message(ctx):
     Also catches exceptions during execution of cmds"""
 
     content = ctx.message.content
-    for pfx in PREFIX:
+    for pfx in bot.command_prefix:
         if content.startswith(pfx):
             # Remove prefix from message
             content = content.replace(pfx, "", 1).strip()
@@ -227,12 +192,12 @@ async def execute(ctx, cmd, thread_id):
         func_name = cmd.split(" ", 1)[0]
         func_args = cmd.replace(func_name, "", 1).strip()
 
-        if func_name in ALIASES:
+        if func_name in bot.aliases:
             return await parse_command(ctx, parse_alias(func_name).format(func_args),thread_id)
 
         # Check if the command actually exists
-        elif func_name in COMMANDS:
-            func = COMMANDS[func_name]
+        elif func_name in bot.commands:
+            func = bot.commands[func_name]
 
             if ctx.threads[thread_id]:
                 carry = ctx.threads[thread_id][-1]
@@ -300,7 +265,7 @@ def parse_args(content:str):
 def parse_alias(key, als=None):
     # Alias of an Alias
     if als is None:
-        als = ALIASES
+        als = bot.aliases
     if key in als:
         return parse_alias(als[key], als)
     # We found the Alias
@@ -313,3 +278,6 @@ def log(author, state: str, message = "", info = None):
     print("[{}] {:<20s}:{:<20s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(message)))
     if info:
         print("  > " + str(info))
+
+
+bot = Bot() # pylint: disable=C0103
