@@ -5,8 +5,6 @@ import inspect
 from datetime import datetime
 import discord
 
-bot = discord.Client() # pylint: disable=C0103
-
 # == Config File ==
 with open("config.json", "r") as f:
     CONFIG = json.load(f)
@@ -21,11 +19,6 @@ if isinstance(PREFIX, str):
     PREFIX = [PREFIX]
 TOKEN = CONFIG["token"]
 
-if "commands_enabled" in CONFIG:
-    bot.commands_enabled = CONFIG["commands_enabled"]
-else:
-    bot.commands_enabled = True
-
 
 # == Exceptions == TO BE MOVED TO A NEW FILE ==
 class FunctionException(Exception):
@@ -38,54 +31,45 @@ def command(**kwargs):
     """Additional parameter to be given to the decorator"""
     def dec(fct):
         """Command decorator to define commands"""
-        args = inspect.getfullargspec(fct)[0]
-        if "carry" not in args:
-            kwargs["ignore_carry"] = True
-        if "ctx" not in args:
-            kwargs["ignore_ctx"] = True
-        # add the command to dict
+        sig = inspect.signature(fct).parameters
+        param = [sig[k] for k in sig]
+        del sig
         name = kwargs.pop("name", fct.__name__)
-        cmd = Command(func=fct, **kwargs)
-
-        if name in COMMANDS:
-            sub = kwargs.pop("switch", None)
-            COMMANDS[name].sub_commdands[sub] = cmd
-
-        else: 
-            COMMANDS[name] = cmd
+        cmd = Command(func=fct, param=param, **kwargs) 
+        COMMANDS[name] = cmd
         return cmd
     return dec
 
 
 # == Classes ==
-#class Bot(discord.Client):
-#    """helper class whith some usefull functions"""
-#    def __init__(self, **kwargs):
-#        discord.Client.__init__(self)
-#        self.Commands = kwargs.pop("commands", {})
-#        self.active_ctx = kwargs.pop("active_ctx",[])
-#
-#
-#    async def reply(self, msg: str):
-#        ctx = self.ctx(ctx_id = 0) #find a way to get ctx
-#        if not ctx.silent:
-#            msg = msg.strip()
-#            if msg:
-#                return await self.send_message(ctx.message.channel, msg)
-#            else:
-#                raise FunctionException("Cannot send empty message")
-#        else:
-#            return None
-#
-#
-#    def new_ctx(self, **kwargs):
-#        ctx = kwargs.pop("ctx", None)
-#        self.active_ctx.append(ctx)
-#        return len(self.active_ctx) - 1
-#
-#    def ctx(self, **kwargs):
-#        ctx_id = kwargs.pop("ctx_id", len(self.active_ctx) - 1)
-#        return self.active_ctx[ctx_id]
+class Bot(discord.Client):
+    """helper class whith some usefull functions"""
+    def __init__(self, **kwargs):
+        discord.Client.__init__(self)
+        self.Commands = kwargs.pop("commands", {})
+        self.active_ctx = kwargs.pop("active_ctx",[])
+
+
+    async def reply(self, msg: str):
+        ctx = self.ctx(ctx_id = 0) #find a way to get ctx
+        if not ctx.silent:
+            msg = msg.strip()
+            if msg:
+                return await self.send_message(ctx.message.channel, msg)
+            else:
+                raise FunctionException("Cannot send empty message")
+        else:
+            return None
+
+
+    def new_ctx(self, **kwargs):
+        ctx = kwargs.pop("ctx", None)
+        self.active_ctx.append(ctx)
+        return len(self.active_ctx) - 1
+
+    def ctx(self, **kwargs):
+        ctx_id = kwargs.pop("ctx_id", len(self.active_ctx) - 1)
+        return self.active_ctx[ctx_id]
 
 
 
@@ -96,6 +80,7 @@ class Command:
 
         self.func = kwargs.pop("func", None)
         self.doc = self.func.__doc__
+        self.param = kwargs.pop("param", None)
         self.sub_commdands = {}
 
         self.ignore_all = kwargs.pop("ignore_all", False)

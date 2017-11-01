@@ -2,7 +2,7 @@
 import importlib
 from core import * # pylint: disable=W0614,W0401
 
-
+bot = Bot() # pylint: disable=C0103
 ready = Start("BOT") # pylint: disable=C0103
 
 
