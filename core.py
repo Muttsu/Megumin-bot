@@ -69,8 +69,6 @@ class Command:
 
         self.key_aliases = kwargs.pop("key_aliases", None)
 
-        self.opt_aliases = {"s":"silent", "r":"repeat", "v":"verbose"}
-
 
     async def __call__(self, *args, **kwargs):
         args = list(args)
