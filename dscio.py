@@ -11,7 +11,7 @@ class Dscout(): #flow control
         if not s:
             return #need to implement exception
         ch = asyncio.Task.current_task().ctx.invoker.channel
-        if self.pipes and self.pipes[ch]:
+        if ch in self.pipes:
             self.pipes[ch].write(s)
         else:
             asyncio.ensure_future(self.bot.send_message(ch, s))
@@ -22,20 +22,30 @@ class Dscout(): #flow control
 
 class Dscin():
     def __init__(self, bot):
-        self.buffer = []
+        self.stream = {}
         self.pipes = {}
         self.bot = bot
-        self.lock = asyncio.Semaphore(0)
 
-    async def read(self, n=1, channel=asyncio.Task.current_task().ctx.invoker.channel):
-        while await self.lock.acquire():
-            for msg in self.buffer:
-                if msg.channel = channel:
-                    
+    async def read(self, n=1):
+        #todo raise exception if channel not in self.buffer
+        ch = asyncio.Task.current_task().ctx.invoker.channel #only allows current channel
+        q = self.stream[channel]
+        for i in range(n)
+            ret.append(await q.get())
+        return ret
 
-    def write(self, s):
-        self.buffer.append(Dummy_msg(s))
-        self.lock.release()
+
+    def write(self, s, channel=asyncio.Task.current_task().ctx.invoker.channel):
+        #todo raise exception if channel not in self.buffer
+        asyncio.ensure_future(self.stream[channel].put(Dummy_msg(s, channel)))
+
+    def new_buffer(self, channel=asyncio.Task.current_task().ctx.invoker.channel):
+        #todo raise exception if channel in self.buffer
+        q = asyncio.Queue()
+        self.stream[channel] = q
+
+    def close_buffer(self, channel=asyncio.Task.current_task().ctx.invoker.channel):
+        del self.stream[channel]
 
 
 class Dummy_msg():
