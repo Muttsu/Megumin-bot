@@ -29,9 +29,8 @@ class Dscin():
     async def read(self, n=1):
         #todo raise exception if channel not in self.buffer
         ch = asyncio.Task.current_task().ctx.invoker.channel #only allows current channel
-        q = self.stream[channel]
-        for i in range(n):
-            ret.append(await q.get())
+        q = self.stream[ch]
+        ret = [await q.get() for i in range(n)]
         return ret
 
 
