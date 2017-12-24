@@ -1,9 +1,10 @@
 """This module contains all the stuff"""
-import json
 import re
 import inspect
+import asyncio
 from datetime import datetime
-import discord
+from bot import Bot
+from dscio import Dscout
 
 
 # == Exceptions == TO BE MOVED TO A NEW FILE ==
@@ -29,25 +30,6 @@ def command(**kwargs):
 
 
 # == Classes ==
-class Bot(discord.Client):
-    """helper class whith some usefull functions"""
-    def __init__(self, **kwargs):
-        discord.Client.__init__(self)
-
-        with open("config.json", "r") as file:
-            config = json.load(file)
-            file.close()
-        self.commands = kwargs.pop("commands", {})
-        self.admin_ids = config["admins"]
-        self.aliases = config["aliases"]
-        self.modules = config["modules"]
-        self.command_prefix = config["prefix"]
-        if isinstance(self.command_prefix, str):
-            self.command_prefix = [self.command_prefix]
-        self.token = config["token"]
-
-    def init(self):
-        self.run(self.token)
 
 
 class Command:
@@ -94,13 +76,20 @@ class Command:
         if not self.ignore_carry and carry is not None:
             args.insert(1, carry)
 
-        return await self.func(*args, **kwargs)
+        task = asyncio.ensure_future(self.func(*args, **kwargs))
+        task.ctx = ctx
+
+        #dscio.red_channels[ctx.message.channel] = True #todo value based on redirected or not
+
+        return await task
+
+
 
 
 class Context:
     """Object containing information about the executed command"""
     def __init__(self, **kwargs):
-        self.message = kwargs.pop("message", None)
+        self.invoker = kwargs.pop("message", None)
         self.bot = kwargs.pop("bot", None)
         self.current = kwargs.pop("current", ["Context Declared"])
         self.silent = kwargs.pop("silent", None)
@@ -118,7 +107,7 @@ class Context:
         """Helper function"""
         msg = msg.strip()
         if msg:
-            return await self.bot.send_message(self.message.channel, msg)
+            return await self.bot.send_message(self.invoker.channel, msg)
         else:
             raise FunctionException("Cannot send empty message")
 
@@ -278,5 +267,5 @@ def log(author, state: str, message = "", info = None):
     if info:
         print("  > " + str(info))
 
-
-bot = Bot() # pylint: disable=C0103
+bot = Bot()
+discout = Dscout(bot)

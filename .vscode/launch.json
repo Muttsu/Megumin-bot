@@ -11,12 +11,19 @@
             "stopOnEntry": true,
             "pythonPath": "${config:python.pythonPath}",
             "program": "${file}",
+<<<<<<< HEAD
             "cwd": "${workspaceRoot}",
             "env": {},
             "envFile": "${workspaceRoot}/.env",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
+=======
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "envFile": "${workspaceFolder}/.env",
+            "debugOptions": [
+>>>>>>> dscio
                 "RedirectOutput"
             ]
         },
@@ -24,8 +31,13 @@
             "name": "Python: Attach",
             "type": "python",
             "request": "attach",
+<<<<<<< HEAD
             "localRoot": "${workspaceRoot}",
             "remoteRoot": "${workspaceRoot}",
+=======
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "${workspaceFolder}",
+>>>>>>> dscio
             "port": 3000,
             "secret": "my_secret",
             "host": "localhost"
@@ -40,11 +52,16 @@
             "cwd": "",
             "console": "integratedTerminal",
             "env": {},
+<<<<<<< HEAD
             "envFile": "${workspaceRoot}/.env",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit"
             ]
+=======
+            "envFile": "${workspaceFolder}/.env",
+            "debugOptions": []
+>>>>>>> dscio
         },
         {
             "name": "Python: Terminal (external)",
@@ -56,11 +73,16 @@
             "cwd": "",
             "console": "externalTerminal",
             "env": {},
+<<<<<<< HEAD
             "envFile": "${workspaceRoot}/.env",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit"
             ]
+=======
+            "envFile": "${workspaceFolder}/.env",
+            "debugOptions": []
+>>>>>>> dscio
         },
         {
             "name": "Python: Django",
@@ -68,18 +90,28 @@
             "request": "launch",
             "stopOnEntry": true,
             "pythonPath": "${config:python.pythonPath}",
+<<<<<<< HEAD
             "program": "${workspaceRoot}/manage.py",
             "cwd": "${workspaceRoot}",
+=======
+            "program": "${workspaceFolder}/manage.py",
+            "cwd": "${workspaceFolder}",
+>>>>>>> dscio
             "args": [
                 "runserver",
                 "--noreload",
                 "--nothreading"
             ],
             "env": {},
+<<<<<<< HEAD
             "envFile": "${workspaceRoot}/.env",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
+=======
+            "envFile": "${workspaceFolder}/.env",
+            "debugOptions": [
+>>>>>>> dscio
                 "RedirectOutput",
                 "DjangoDebugging"
             ]
@@ -91,19 +123,30 @@
             "stopOnEntry": false,
             "pythonPath": "${config:python.pythonPath}",
             "program": "fully qualified path fo 'flask' executable. Generally located along with python interpreter",
+<<<<<<< HEAD
             "cwd": "${workspaceRoot}",
             "env": {
                 "FLASK_APP": "${workspaceRoot}/quickstart/app.py"
+=======
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "FLASK_APP": "${workspaceFolder}/quickstart/app.py"
+>>>>>>> dscio
             },
             "args": [
                 "run",
                 "--no-debugger",
                 "--no-reload"
             ],
+<<<<<<< HEAD
             "envFile": "${workspaceRoot}/.env",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
+=======
+            "envFile": "${workspaceFolder}/.env",
+            "debugOptions": [
+>>>>>>> dscio
                 "RedirectOutput"
             ]
         },
@@ -113,6 +156,7 @@
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config:python.pythonPath}",
+<<<<<<< HEAD
             "program": "${workspaceRoot}/run.py",
             "cwd": "${workspaceRoot}",
             "args": [],
@@ -121,6 +165,14 @@
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
+=======
+            "program": "${workspaceFolder}/run.py",
+            "cwd": "${workspaceFolder}",
+            "args": [],
+            "env": {},
+            "envFile": "${workspaceFolder}/.env",
+            "debugOptions": [
+>>>>>>> dscio
                 "RedirectOutput"
             ]
         },
@@ -139,12 +191,19 @@
                 "pythonPath": "${env:SPARK_HOME}/bin/spark-submit"
             },
             "program": "${file}",
+<<<<<<< HEAD
             "cwd": "${workspaceRoot}",
             "env": {},
             "envFile": "${workspaceRoot}/.env",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
+=======
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "envFile": "${workspaceFolder}/.env",
+            "debugOptions": [
+>>>>>>> dscio
                 "RedirectOutput"
             ]
         },
@@ -155,12 +214,19 @@
             "stopOnEntry": true,
             "pythonPath": "${config:python.pythonPath}",
             "module": "module.name",
+<<<<<<< HEAD
             "cwd": "${workspaceRoot}",
             "env": {},
             "envFile": "${workspaceRoot}/.env",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
+=======
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "envFile": "${workspaceFolder}/.env",
+            "debugOptions": [
+>>>>>>> dscio
                 "RedirectOutput"
             ]
         },
@@ -170,6 +236,7 @@
             "request": "launch",
             "stopOnEntry": true,
             "pythonPath": "${config:python.pythonPath}",
+<<<<<<< HEAD
             "cwd": "${workspaceRoot}",
             "env": {},
             "envFile": "${workspaceRoot}/.env",
@@ -179,6 +246,15 @@
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
+=======
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "envFile": "${workspaceFolder}/.env",
+            "args": [
+                "${workspaceFolder}/development.ini"
+            ],
+            "debugOptions": [
+>>>>>>> dscio
                 "RedirectOutput",
                 "Pyramid"
             ]
@@ -189,18 +265,28 @@
             "request": "launch",
             "stopOnEntry": true,
             "pythonPath": "${config:python.pythonPath}",
+<<<<<<< HEAD
             "program": "${workspaceRoot}/console.py",
             "cwd": "${workspaceRoot}",
+=======
+            "program": "${workspaceFolder}/console.py",
+            "cwd": "${workspaceFolder}",
+>>>>>>> dscio
             "args": [
                 "dev",
                 "runserver",
                 "--noreload=True"
             ],
             "env": {},
+<<<<<<< HEAD
             "envFile": "${workspaceRoot}/.env",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
+=======
+            "envFile": "${workspaceFolder}/.env",
+            "debugOptions": [
+>>>>>>> dscio
                 "RedirectOutput"
             ]
         }
