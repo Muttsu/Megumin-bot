@@ -1,5 +1,5 @@
 """File to run"""
-import importlib
+import importlib, asyncio
 from core import * # pylint: disable=W0614,W0401
 
 ready = Start("BOT") # pylint: disable=C0103
@@ -30,19 +30,20 @@ async def on_ready():
 async def on_message(message):
     """Commands and Stuff"""
 
-    if ready:
-        if message.author != bot.user:
-            if message.content == "§die" and message.author.id in bot.admin_ids:
-                exit()
+    if ready and message.author != bot.user:
+        if message.content == "§die" and message.author.id in bot.admin_ids:
+            asyncio.get_event_loop().stop()
 
-            elif message.content.startswith(tuple(bot.command_prefix)):
-                log(message.author, message.content)
+        elif message.content.startswith(tuple(bot.command_prefix)):
+            log(message.author, message.content)
 
-                #!!! add new bot class with active context
-                ctx = Context(bot=bot, message=message)
+            #!!! add new bot class with active context
+            ctx = Context(bot=bot, message=message)
 
-                await parse_message(ctx)
-                print("-"*3)
+            await parse_message(ctx)
+            print("-"*3)
+
+
 
 
 bot.init()
