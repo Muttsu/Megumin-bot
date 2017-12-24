@@ -30,7 +30,7 @@ class Dscin():
         #todo raise exception if channel not in self.buffer
         ch = asyncio.Task.current_task().ctx.invoker.channel #only allows current channel
         q = self.stream[channel]
-        for i in range(n)
+        for i in range(n):
             ret.append(await q.get())
         return ret
 
