@@ -8,13 +8,13 @@ async def help(ctx, func: str):
     """Displays the reference manual for commands and aliases
     Usage: help <func:str>"""
 
-    if func in ALIASES:
-        doc = "'{}' is an alias for '{}'".format(func, ALIASES[func])
+    if func in bot.aliases:
+        doc = "'{}' is an alias for '{}'".format(func, bot.aliases[func])
 
-    elif func in COMMANDS:
+    elif func in bot.commands:
         doc = "Manual entry for '{}' is empty".format(func)
-        if COMMANDS[func].doc:
-            doc = "'{}': {}".format(func, COMMANDS[func].doc)
+        if bot.commands[func].doc:
+            doc = "'{}': {}".format(func, bot.commands[func].doc)
 
     else:
         doc = "No manual entry for '{}'".format(func)
@@ -24,9 +24,9 @@ async def help(ctx, func: str):
     return doc
 
 @command(ignore_all=True, ignore_ctx=False)
-async def delMsg(ctx):
+async def delmsg(ctx):
     """Deletes the command message
-    Usage: delMsg
+    Usage: delmsg
     Return: 0"""
 
     try:
@@ -64,3 +64,6 @@ async def echo(ctx, carry, message="{}", raw = False, formatstr = ""):
     await ctx.reply(message)
     return message
 
+@command(ignore_all=True)
+async def test():
+    print("hi am cow", file=dscout)
