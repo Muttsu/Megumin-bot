@@ -5,3 +5,4 @@ config.json
 pyvenv.cfg
 run
 include
+.vscode
