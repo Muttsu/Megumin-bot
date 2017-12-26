@@ -1,4 +1,5 @@
 """a wrapper for the discord client"""
+
 import json
 import discord
 

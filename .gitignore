@@ -1,9 +1,9 @@
 config.json
 *.pyc
-/bin
-/lib
+bin/
+lib/
 pyvenv.cfg
 run
 include
-.vscode
-.idea
+.vscode/
+.idea/
