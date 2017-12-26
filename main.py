@@ -1,4 +1,5 @@
 """File to run"""
+
 import importlib, asyncio
 from core import * # pylint: disable=W0614,W0401
 
@@ -37,13 +38,10 @@ async def on_message(message):
         elif message.content.startswith(tuple(bot.command_prefix)):
             log(message.author, message.content)
 
-            #!!! add new bot class with active context
+            # !!! add new bot class with active context
             ctx = Context(bot=bot, message=message)
 
             await parse_message(ctx)
             print("-"*3)
-
-
-
 
 bot.init()

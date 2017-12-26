@@ -25,5 +25,5 @@ class Bot(discord.Client):
         try:
             self.run(self.token)
         except RuntimeError:
-            #todo log msg
+            # todo log msg
             self.logout()

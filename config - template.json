@@ -2,7 +2,7 @@
     "token": "token",
     "admins": ["Admin_ids"],
 
-    "prefix": "?", // Can also be an array
+    "prefix": "?", // Can also be an array (not allowed to use comments in JSON)
 
     "modules": ["modules"],
     "aliases": {"aliases": "command"}

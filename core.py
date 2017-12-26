@@ -24,7 +24,7 @@ def command(**kwargs):
         name = kwargs.pop("name", fct.__name__)
         cmd = Command(func=fct, param=param, **kwargs)
         bot.commands[name] = cmd
-        #subcommands to be implemented
+        # sub-commands to be implemented
         return cmd
     return dec
 
@@ -51,13 +51,12 @@ class Command:
 
         self.key_aliases = kwargs.pop("key_aliases", None)
 
-
     async def __call__(self, *args, **kwargs):
         args = list(args)
 
         # take out the option kwargs
         ctx = kwargs.pop("ctx", None)
-        carry= kwargs.pop("carry", None)
+        carry = kwargs.pop("carry", None)
 
         if self.ignore_args:
             args = []
@@ -79,11 +78,10 @@ class Command:
         task = asyncio.ensure_future(self.func(*args, **kwargs))
         task.ctx = ctx
 
-        #dscio.red_channels[ctx.message.channel] = True #todo value based on redirected or not
+        # dscio.red_channels[ctx.message.channel] = True
+        # todo value based on redirected or not
 
         return await task
-
-
 
 
 class Context:
@@ -114,7 +112,7 @@ class Context:
 
 class Start:
     """retarded helper class"""
-    def __init__(self, boolean = False):
+    def __init__(self, boolean=False):
         if boolean == "BOT":
             print("Made by Muttsu and twl")
             boolean = False
@@ -146,18 +144,18 @@ async def parse_message(ctx):
     except FunctionException as e:
         log(ctx.message.author, "FUNCTION EXPLODED", ctx.current[-1], e)
         await ctx.reply("<@{a}>, <@{a}>. Is this normal?```\n> {e}\n```"
-            .format(a=ctx.message.author.id, e=str(e)))
+                        .format(a=ctx.message.author.id, e=str(e)))
 
     except Exception as e:
         log(ctx.message.author, "ERROR", ctx.current[-1], e)
         await ctx.reply("<@{a}>, this is NOT how it works. ಠ_ಠ```\n> {e}```"
-            .format(a=ctx.message.author.id, e=str(e)))
+                        .format(a=ctx.message.author.id, e=str(e)))
 
     finally:
         del ctx
 
 
-async def parse_command(ctx, content, thread_id = None):
+async def parse_command(ctx, content, thread_id=None):
     """Parse commands"""
     content = content.split(" & ")
 
@@ -182,7 +180,7 @@ async def execute(ctx, cmd, thread_id):
         func_args = cmd.replace(func_name, "", 1).strip()
 
         if func_name in bot.aliases:
-            return await parse_command(ctx, parse_alias(func_name).format(func_args),thread_id)
+            return await parse_command(ctx, parse_alias(func_name).format(func_args), thread_id)
 
         # Check if the command actually exists
         elif func_name in bot.commands:
@@ -205,11 +203,11 @@ async def execute(ctx, cmd, thread_id):
             return ret
 
         else:
-            #!!! rewrite exception
+            # !!! rewrite exception
             raise Exception("'{}': not a command".format(func_name))
 
 
-def parse_args(content:str):
+def parse_args(content: str):
     """Parse the arguments !!! does not parse key aliases; it must be done during the call of the command"""
 
     pattern = r"(\-[^\s]+\"[^\"\\]*(?:\\.[^\"\\]*)*\")|(\-[^\s]+\:[^\s]+)|(\-[^\s]+)|(\"[^\"\\]*(?:\\.[^\"\\]*)*\")|([^\s]+)"
@@ -225,7 +223,7 @@ def parse_args(content:str):
         if arg:
             if arg[0] == arg[-1] == "\"":
                 arg = arg[1:-1].strip()
-            if re.fullmatch(r"\d+",arg) is not None:
+            if re.fullmatch(r"\d+", arg) is not None:
                 arg = int(arg)
             elif arg in ["True", "T", "t"]:
                 arg = True
@@ -240,7 +238,7 @@ def parse_args(content:str):
         if arg:
             if arg[0] == arg[-1] == "\"":
                 arg = arg[1:-1].strip()
-            if re.fullmatch(r"\d+",arg) is not None:
+            if re.fullmatch(r"\d+", arg) is not None:
                 arg = int(arg)
             elif arg in ["True", "T", "t"]:
                 arg = True
@@ -262,11 +260,12 @@ def parse_alias(key, als=None):
         return key
 
 
-def log(author, state: str, message = "", info = None):
+def log(author, state: str, message="", info=None):
     """Logging, Logging, Error Debugging"""
     print("[{}] {:<20s}:{:<20s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(message)))
     if info:
         print("  > " + str(info))
+
 
 bot = Bot()
 discout = Dscout(bot)
