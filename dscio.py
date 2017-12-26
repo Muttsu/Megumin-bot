@@ -1,15 +1,19 @@
 """io flow for discord messages"""
 import asyncio
 
-class Dscout(): #flow control
-    def __init__(self, bot, pipes = {}):
+
+class Dscout():
+    """flow control"""
+    def __init__(self, bot, pipes={}):
         self.pipes = pipes
         self.bot = bot
+        self.stream = {}
 
-    def write(self,s):
+    def write(self, s):
         s = s.strip()
         if not s:
-            return #need to implement exception
+            return # what are you returning???
+            # need to implement exception
         ch = asyncio.Task.current_task().ctx.invoker.channel
         if ch in self.pipes:
             self.pipes[ch].write(s)
@@ -20,6 +24,7 @@ class Dscout(): #flow control
         del self.stream
         self.stream = {}
 
+
 class Dscin():
     def __init__(self, bot):
         self.stream = {}
@@ -27,19 +32,20 @@ class Dscin():
         self.bot = bot
 
     async def read(self, n=1):
-        #todo raise exception if channel not in self.buffer
-        ch = asyncio.Task.current_task().ctx.invoker.channel #only allows current channel
+        # todo raise exception if channel not in self.buffer
+        ch = asyncio.Task.current_task().ctx.invoker.channel
+        # only allows current channel
         q = self.stream[ch]
         ret = [await q.get() for i in range(n)]
+        # why do you have [i]
         return ret
 
-
     def write(self, s, channel=asyncio.Task.current_task().ctx.invoker.channel):
-        #todo raise exception if channel not in self.buffer
+        # todo raise exception if channel not in self.buffer
         asyncio.ensure_future(self.stream[channel].put(Dummy_msg(s, channel)))
 
     def new_buffer(self, channel=asyncio.Task.current_task().ctx.invoker.channel):
-        #todo raise exception if channel in self.buffer
+        # todo raise exception if channel in self.buffer
         q = asyncio.Queue()
         self.stream[channel] = q
 
@@ -47,7 +53,7 @@ class Dscin():
         del self.stream[channel]
 
 
-class Dummy_msg():
-    def __init__(self, content, channel = asyncio.Task.current_task().ctx.invoker.channel):
+class dummy_msg():
+    def __init__(self, content, channel=asyncio.Task.current_task().ctx.invoker.channel):
         self.channel = channel
         self.content = content

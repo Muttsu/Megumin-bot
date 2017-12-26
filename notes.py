@@ -1,8 +1,10 @@
 import asyncio
 
+
 async def hi():
     task = asyncio.Task.current_task()
     return "hi " + task.msg
+
 
 async def main():
     task = loop.create_task(hi())
