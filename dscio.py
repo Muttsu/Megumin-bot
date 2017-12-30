@@ -32,7 +32,8 @@ class dscout():
 
 
     def flush(self):
-        return #flush is not allowed
+        return # flush is not allowed
+        # todo implement multiple prints / single message; use flush to end further printing
 
 
 class dscin():
@@ -43,11 +44,9 @@ class dscin():
         self.bot = bot
         self.pipes = pipes
 
-    async def read(self, n=1):
+    async def get(self, channel=asyncio.Task.current_task().ctx.invoker.channel):
         # todo raise exception if channel not in self.buffer
         # todo read n times
-        channel = asyncio.Task.current_task().ctx.invoker.channel
-        # only allows current channel
         if self.stream and channel in self.stream:
             buf = self.stream[channel]
             ret = await buf.get()
@@ -55,18 +54,26 @@ class dscin():
                 del self.stream[channel]
         else:
             self.new_buffer(channel)
-            self.read(n)
+            ret = self.get()
+        return ret
 
-    def write(self, s, channel=asyncio.Task.current_task().ctx.invoker.channel):
+    async def read(self, **kwargs):
+        return await self.get(**kwargs).content
+
+
+    def put(self, element, channel=asyncio.Task.current_task().ctx.invoker.channel):
         # todo raise exception if channel not in self.buffer
         # todo pipes
         if self.stream and channel in self.pipes:
-            self.pipes[channel].write(s)
+            self.pipes[channel].put(element)
         else:
-            if channel in self.stream:
-                asyncio.ensure_future(self.stream[channel].put(dummy_msg(s, channel)))
-            else:
+            if channel not in self.stream:
                 self.new_buffer(channel)
+            self.stream[channel].put(element)
+
+    def write(self, s, **kwargs):
+        self.put(dummy_msg(s), **kwargs)
+
 
     def new_buffer(self, channel=asyncio.Task.current_task().ctx.invoker.channel):
         # todo raise exception if channel in self.buffer
@@ -101,13 +108,19 @@ class buffer():
 
     async def get(self):
         with await self._lock:
-            self.size += 1
+            self.size -= 1
             return await self._cargo.get()
 
+    async def read(self, n=1):
+        return await self.get().content
 
-    def put(self, element):
-        self._cargo.put_nowait(element)
-        self.size -= 1
+
+    def put(self, message):
+        self._cargo.put_nowait(message)
+        self.size += 1
+
+    def write(self, s):
+        self.put(dummy_msg(s))
 
 
     def isempty(self):
@@ -148,9 +161,6 @@ class buffer():
 
 
 class dummy_msg():
-    def __init__(self, content, channel=asyncio.Task.current_task().ctx.invoker.channel):
-        self.channel = channel
+    def __init__(self, content):
+        self.channel = None
         self.content = content
-
-dscin = dscin()
-dscout = dscout()
