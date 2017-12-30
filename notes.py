@@ -1,16 +1,25 @@
-import asyncio
+import sys
 
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
-async def hi():
-    task = asyncio.Task.current_task()
-    return "hi " + task.msg
+class test(metaclass=Singleton):
+    def __init__(self):
+        self.stream = ""
 
+    def write(self, s):
+        self.stream = self.stream + s
+        print(self.stream, file=sys.__stdout__)
 
-async def main():
-    task = loop.create_task(hi())
-    task.msg = "am cow"
-    print(await task)
+    def flush(self):
+        self.stream = ""
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
-loop.close()
+test = test()
+sys.stdout = test
+
+test.write("hi")
+test.write("am cow")
