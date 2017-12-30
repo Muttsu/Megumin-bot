@@ -4,7 +4,6 @@ import inspect
 import asyncio
 from datetime import datetime
 from bot import Bot
-from dscio import Dscout
 
 
 # == Exceptions == TO BE MOVED TO A NEW FILE ==
@@ -78,7 +77,7 @@ class Command:
         task = asyncio.ensure_future(self.func(*args, **kwargs))
         task.ctx = ctx
 
-        # dscio.red_channels[ctx.message.channel] = True
+        # dscio.red_channels[ctx.invoker.channel] = True
         # todo value based on redirected or not
 
         return await task
@@ -129,7 +128,7 @@ async def parse_message(ctx):
     """Removes Prefixes and Passes the Command to parse_command()
     Also catches exceptions during execution of cmds"""
 
-    content = ctx.message.content
+    content = ctx.invoker.content
     for pfx in bot.command_prefix:
         if content.startswith(pfx):
             # Remove prefix from message
@@ -141,14 +140,14 @@ async def parse_message(ctx):
 
     # Error parsing (◕‿◕✿)
     except FunctionException as e:
-        log(ctx.message.author, "FUNCTION EXPLODED", ctx.current[-1], e)
+        log(ctx.invoker.author, "FUNCTION EXPLODED", ctx.current[-1], e)
         await ctx.reply("<@{a}>, <@{a}>. Is this normal?```\n> {e}\n```"
-                        .format(a=ctx.message.author.id, e=str(e)))
+                        .format(a=ctx.invoker.author.id, e=str(e)))
 
     except Exception as e:
-        log(ctx.message.author, "ERROR", ctx.current[-1], e)
+        log(ctx.invoker.author, "ERROR", ctx.current[-1], e)
         await ctx.reply("<@{a}>, this is NOT how it works. ಠ_ಠ```\n> {e}```"
-                        .format(a=ctx.message.author.id, e=str(e)))
+                        .format(a=ctx.invoker.author.id, e=str(e)))
 
     finally:
         del ctx
@@ -198,7 +197,7 @@ async def execute(ctx, cmd, thread_id):
             ret = await func(*args, **kwargs)
 
             # Log the return value
-            log(ctx.message.author, "SUCCESS", cmd, ret)
+            log(ctx.invoker.author, "SUCCESS", cmd, ret)
             return ret
 
         else:
@@ -267,4 +266,3 @@ def log(author, state: str, message="", info=None):
 
 
 bot = Bot()
-discout = Dscout(bot)
