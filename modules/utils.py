@@ -30,7 +30,7 @@ async def delmsg(ctx):
     Return: 0"""
 
     try:
-        await ctx.bot.delete_message(ctx.message)
+        await ctx.bot.delete_message(ctx.invoker)
         return 0
     except:
         raise FunctionException()
@@ -42,7 +42,7 @@ async def ping(ctx):
     Return: ping"""
 
     local_time = datetime.now()
-    ping_latency = (local_time - ctx.message.timestamp).microseconds // 1000
+    ping_latency = (local_time - ctx.invoker.timestamp).microseconds // 1000
 
     pong = await ctx.reply('ping({}ms)'.format(str(ping_latency)))
     if pong is not None:
@@ -64,6 +64,6 @@ async def echo(ctx, carry, message="{}", raw = False, formatstr = ""):
     await ctx.reply(message)
     return message
 
-@command(ignore_all=True)
-async def test():
-    print("hi am cow", file=dscout)
+@command(ignore_all = True, ignore_ctx=False)
+async def hashch(ctx):
+    await ctx.reply(str(hash(ctx.invoker.channel)))
