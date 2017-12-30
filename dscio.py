@@ -121,7 +121,7 @@ class buffer():
         fut = self._lock._loop.create_future()
         self._lock._waiters.appendleft(fut)
         try:
-            yield from fut
+            await fut
             self._lock._locked = True
             return self._cargo
         except asyncio.futures.CancelledError:
