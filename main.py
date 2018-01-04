@@ -1,7 +1,8 @@
 """File to run"""
-
 import importlib, asyncio
-from core import * # pylint: disable=W0614,W0401
+from core import Start, log, get_task, parse_message
+from bot import bot
+from dscio import dscin, dscout
 
 ready = Start("BOT") # pylint: disable=C0103
 
@@ -38,10 +39,17 @@ async def on_message(message):
         elif message.content.startswith(tuple(bot.command_prefix)):
             log(message.author, message.content)
 
-            # !!! add new bot class with active context
-            ctx = Context(bot=bot, message=message)
+            # todo write task factory instead of
+            task = get_task()
+            task.author = message.author
+            task.channel = message.channel
+            task.invoker = message
+            del task
 
-            await parse_message(ctx)
-            print("-"*3)
+            if dscin.flag.is_set():
+                dscin.put(message, message.channel)
+            else:
+                await parse_message({}) # todo write new invoke function
+
 
 bot.init()
