@@ -39,7 +39,6 @@ async def on_message(message):
         elif message.content.startswith(tuple(bot.command_prefix)):
             log(message.author, message.content)
 
-            # todo write task factory instead of
             task = get_task()
             task.author = message.author
             task.channel = message.channel
