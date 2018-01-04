@@ -3,7 +3,8 @@ import re
 import inspect
 import asyncio
 from datetime import datetime
-from bot import Bot
+from bot import bot
+from dscio import dscin, dscout
 
 
 # == Exceptions == TO BE MOVED TO A NEW FILE ==
@@ -107,6 +108,10 @@ class Context:
             return await self.bot.send_message(self.invoker.channel, msg)
         else:
             raise FunctionException("Cannot send empty message")
+
+
+def get_task():
+    return asyncio.Task.current_task()
 
 
 class Start:
@@ -264,6 +269,3 @@ def log(author, state: str, message="", info=None):
     print("[{}] {:<20s}:{:<20s} {}".format(datetime.now().strftime("%H:%M:%S"), str(author), state, str(message)))
     if info:
         print("  > " + str(info))
-
-
-bot = Bot()

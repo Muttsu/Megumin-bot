@@ -1,5 +1,4 @@
 """a wrapper for the discord client"""
-
 import json
 import discord
 
@@ -23,8 +22,11 @@ class Bot(discord.Client):
 
     def init(self):
         """calls the discord.Client.run() method"""
+        # todo create the loop here, so we can interrupt easily
         try:
             self.run(self.token)
         except RuntimeError:
             # todo log msg
             self.logout()
+
+bot = Bot()

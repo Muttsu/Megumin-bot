@@ -12,6 +12,7 @@ class test(metaclass=Singleton):
         self.stream = ""
 
     def write(self, s):
+        if s.strip() == "": return
         self.stream = self.stream + s
         print(self.stream, file=sys.__stdout__)
 
@@ -21,5 +22,5 @@ class test(metaclass=Singleton):
 test = test()
 sys.stdout = test
 
-test.write("hi")
-test.write("am cow")
+print("hi", flush=True)
+print("am cow")

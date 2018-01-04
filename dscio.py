@@ -1,23 +1,24 @@
 """io flow for discord messages"""
-import asyncio
+import asyncio, discord
+from bot import bot
 
-class dscout():
+class Dscout():
     """unbuffered output stream
     enables channel redirrection using a dict mapping"""
-    def __init__(self, bot, pipes={}):
-        self.pipes = pipes
-        self.bot = bot
+    def __init__(self, client):
+        self.pipes = {}
+        self.client = client
 
-    def write(self, s):
+    def write(self, s, channel=None):
+        if channel is None: channel = asyncio.Task.current_task().channel
         s = s.strip()
         if not s:
             return # what are you returning???
             # need to implement exception
-        channel = asyncio.Task.current_task().ctx.invoker.channel
         if channel in self.pipes:
             self.pipes[channel].write(s)
         else:
-            asyncio.ensure_future(self.bot.send_message(channel, s))
+            asyncio.ensure_future(self.client.send_message(channel, s))
 
     def new_pipe(self, from_ch, to_ch):
         self.pipes[from_ch] = to_ch
@@ -36,22 +37,24 @@ class dscout():
         # todo implement multiple prints / single message; use flush to end further printing
 
 
-class dscin():
+class Dscin():
     """buffered input stream
     enables channel redirrection using a dict mapping"""
-    def __init__(self, bot, pipes={}):
+    def __init__(self):
         self.stream = {}
-        self.bot = bot
-        self.pipes = pipes
+        self.pipes = {}
+        self.flag = asyncio.Event()
 
-    async def get(self, channel=asyncio.Task.current_task().ctx.invoker.channel):
+    async def get(self, channel=None):
+        if channel is None:
+            channel = asyncio.Task.current_task().channel
         # todo raise exception if channel not in self.buffer
         # todo read n times
         if self.stream and channel in self.stream:
             buf = self.stream[channel]
             ret = await buf.get()
             if buf.isempty():
-                del self.stream[channel]
+                self.close_buffer(channel)
         else:
             self.new_buffer(channel)
             ret = self.get()
@@ -61,7 +64,9 @@ class dscin():
         return await self.get(**kwargs).content
 
 
-    def put(self, element, channel=asyncio.Task.current_task().ctx.invoker.channel):
+    def put(self, element, channel=None):
+        if channel is None:
+            channel = asyncio.Task.current_task().channel
         # todo raise exception if channel not in self.buffer
         # todo pipes
         if self.stream and channel in self.pipes:
@@ -75,11 +80,15 @@ class dscin():
         self.put(dummy_msg(s), **kwargs)
 
 
-    def new_buffer(self, channel=asyncio.Task.current_task().ctx.invoker.channel):
+    def new_buffer(self, channel=None):
+        if channel is None:
+            channel = asyncio.Task.current_task().channel
         # todo raise exception if channel in self.buffer
         self.stream[channel] = buffer()
 
-    def close_buffer(self, channel=asyncio.Task.current_task().ctx.invoker.channel):
+    def close_buffer(self, channel=None):
+        if channel is None:
+            channel = asyncio.Task.current_task().channel
         del self.stream[channel]
 
     def new_pipe(self, from_ch, to_ch):
@@ -111,7 +120,7 @@ class buffer():
             self.size -= 1
             return await self._cargo.get()
 
-    async def read(self, n=1):
+    async def read(self):
         return await self.get().content
 
 
@@ -162,5 +171,27 @@ class buffer():
 
 class dummy_msg():
     def __init__(self, content):
-        self.channel = None
+        self.reactions = []
+        self.edited_timestamp = None
+        self.timestamp = None
+        self.tts = False
+        self.pinned = False
         self.content = content
+        self.mention_everyone = None
+        self.embeds = None
+        self.id = None
+        self.channel = None
+        self.author = {}
+        self.nonce = None
+        self.attachments = None
+        self.type = None
+        self.server = None
+        self.channel = None
+        self.mentions = []
+        self.channel_mentions = []
+        self.role_mentions = []
+        self.call = None
+
+dscin = Dscin()
+dscout = Dscout(bot)
+
