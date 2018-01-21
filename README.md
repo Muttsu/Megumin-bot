@@ -1,10 +1,5 @@
 _latest updates on experimental branch_
 
-# Megumin-bot
-```python
-def exPLOSION():
-  print("Bakuretsu "*2+"La "*3)
-  exPLOSION()
+# dish.py Bot
 
-exPLOSION()
-```
+A modular DIscord SHell-like Bot
