@@ -1,5 +1,5 @@
 _latest updates on experimental branch_
 
-# dish.py Bot
+# dippy bot
 
-A modular DIscord SHell-like Bot
+A modular Discord shell-like Bot
