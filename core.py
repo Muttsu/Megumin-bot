@@ -95,7 +95,6 @@ with open("config.json", "r") as f:
 class Start:
     def __init__(self, boolean = None):
         if boolean == "BOT":
-            print("Made by Muttsu and twl")
             boolean = False
         self.state = bool(boolean)
     
