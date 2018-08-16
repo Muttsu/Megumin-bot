@@ -2,11 +2,7 @@
     "token": "token",
     "admins": ["Admin_ids"],
 
-<<<<<<< HEAD
     "prefix": ["?"],
-=======
-    "prefix": "?", // Can also be an array (not allowed to use comments in JSON)
->>>>>>> afa135dc1720b551b9cebc6760ac5cde5f180d54
 
     "modules": ["modules"],
     "aliases": {"aliases": "command"}
