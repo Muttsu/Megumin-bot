@@ -8,29 +8,29 @@ async def help(ctx, func: str):
     """Displays the reference manual for commands and aliases
     Usage: help <func:str>"""
 
-    if func in aliases:
-        doc = "'{}' is an alias for '{}'".format(func, aliases[func])
+    if func in bot.aliases:
+        doc = "'{}' is an alias for '{}'".format(func, bot.aliases[func])
 
-    elif func in commands:
+    elif func in bot.commands:
         doc = "Manual entry for '{}' is empty".format(func)
-        if commands[func].doc:
-            doc = "'{}': {}".format(func, commands[func].doc)
+        if bot.commands[func].doc:
+            doc = "'{}': {}".format(func, bot.commands[func].doc)
 
     else:
         doc = "No manual entry for '{}'".format(func)
         raise FunctionException(doc)
 
-    await ctx.say(doc)
+    await ctx.reply(doc)
     return doc
 
 @command(ignore_all=True, ignore_ctx=False)
-async def delMsg(ctx):
+async def delmsg(ctx):
     """Deletes the command message
-    Usage: delMsg
+    Usage: delmsg
     Return: 0"""
 
     try:
-        await ctx.bot.delete_message(ctx.message)
+        await ctx.bot.delete_message(ctx.invoker)
         return 0
     except:
         raise FunctionException()
@@ -42,24 +42,28 @@ async def ping(ctx):
     Return: ping"""
 
     local_time = datetime.now()
-    ping_latency = (local_time - ctx.message.timestamp).microseconds // 1000
+    ping_latency = (local_time - ctx.invoker.timestamp).microseconds // 1000
 
-    pong = await ctx.say('ping({}ms)'.format(str(ping_latency)))
+    pong = await ctx.reply('ping({}ms)'.format(str(ping_latency)))
     if pong is not None:
         pong_latency = (pong.timestamp - local_time).microseconds // 1000
-        await ctx.bot.edit_message(pong, '{} pong({}ms)'.format(pong.content, str(pong_latency)))
+        ret = (await ctx.bot.edit_message(pong, '{} pong({}ms)'.format(pong.content, str(pong_latency)))).content
 
-    return ping_latency
+    return ret
 
-@command(key_aliases = {"carry": "formatstr", "r": "raw"})
-async def echo(ctx, message, raw = False, formatstr = ""):
+@command(key_aliases = {"f": "formatstr", "r": "raw"})
+async def echo(ctx, carry, message="{}", raw = False, formatstr = ""):
     """Displays text [-r or -raw] [-s or -silent] [-formatstr:str]
     Usage: echo <msg:str>"""
 
+    formatstr = carry or formatstr
     message = str(message).format(formatstr)
 
     if not raw:
         message = re.sub("\s+", " ", message).strip()
-    await ctx.say(message)
+    await ctx.reply(message)
     return message
 
+@command(ignore_all = True, ignore_ctx=False)
+async def hashch(ctx):
+    await ctx.reply(str(hash(ctx.invoker.channel)))
