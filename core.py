@@ -182,8 +182,10 @@ async def execute(ctx, cmd, thread_id):
         func_name = cmd.split(" ", 1)[0]
         func_args = cmd.replace(func_name, "", 1).strip()
 
-        if func_name in bot.aliases:
-            return await parse_command(ctx, parse_alias(func_name).format(func_args), thread_id)
+    if command:
+        if func_name in aliases:
+            return await parse_command(ctx,
+                "{} {}".format(parse_alias(func_name, aliases), arg), thread)
 
         # Check if the command actually exists
         elif func_name in bot.commands:
