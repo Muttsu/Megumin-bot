@@ -1,10 +1,10 @@
 """File to run"""
 import importlib, asyncio
-from core import Start, log, get_task, parse_message
+from core import Flag, log, get_task, parse_message
 from bot import bot
 from dscio import dscin, dscout
 
-ready = Start("BOT") # pylint: disable=C0103
+ready = Flag(status = "waiting for bot to be ready") # pylint: disable=C0103
 
 
 # == Import custom modules ==
@@ -25,7 +25,7 @@ async def on_ready():
     bot.command_prefix.append('<@{}> '.format(bot.user.id))
     bot.command_prefix.append('<@!{}> '.format(bot.user.id))
 
-    ready()
+    ready(status = "bot is ready")
 
 
 @bot.event
